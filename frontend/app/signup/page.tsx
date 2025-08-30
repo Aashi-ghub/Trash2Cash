@@ -12,6 +12,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Recycle, Eye, EyeOff } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { apiClient } from "@/lib/api"
 
 export default function SignupPage() {
   const [formData, setFormData] = useState({
@@ -19,7 +20,7 @@ export default function SignupPage() {
     email: "",
     password: "",
     confirmPassword: "",
-    role: "user",
+    role: "host",
   })
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
@@ -40,21 +41,37 @@ export default function SignupPage() {
 
     setIsLoading(true)
 
-    // Mock registration - replace with real auth later
-    setTimeout(() => {
-      localStorage.setItem(
-        "trash2cash_user",
-        JSON.stringify({
-          id: Date.now().toString(),
-          email: formData.email,
-          name: formData.name,
-          role: formData.role,
-          points: 0,
-        }),
-      )
+    try {
+      // Register with backend
+      const response = await apiClient.register({
+        username: formData.name,
+        email: formData.email,
+        password: formData.password,
+        role: formData.role
+      })
+
+      if (response.status === "success") {
+        // Store user data locally
+        localStorage.setItem(
+          "trash2cash_user",
+          JSON.stringify({
+            id: response.data?.id || Date.now().toString(),
+            email: formData.email,
+            name: formData.name,
+            role: formData.role,
+            points: 0,
+          }),
+        )
+        router.push("/dashboard")
+      } else {
+        alert(response.message || "Registration failed. Please try again.")
+      }
+    } catch (error) {
+      console.error("Registration error:", error)
+      alert("Registration failed. Please check your connection and try again.")
+    } finally {
       setIsLoading(false)
-      router.push("/dashboard")
-    }, 1000)
+    }
   }
 
   return (
@@ -106,8 +123,9 @@ export default function SignupPage() {
                     <SelectValue placeholder="Select account type" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="user">User - Earn rewards for recycling</SelectItem>
                     <SelectItem value="host">Host - Manage smart bins</SelectItem>
+                    <SelectItem value="operator">Operator - Monitor and maintain bins</SelectItem>
+                    <SelectItem value="admin">Admin - Full system access</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

@@ -27,6 +27,7 @@ import {
   Trash2,
   Activity,
   IndianRupee,
+  Database,
 } from "lucide-react"
 import { useAuth } from "@/components/auth-provider"
 import { ApiStatus } from "@/components/api-status"

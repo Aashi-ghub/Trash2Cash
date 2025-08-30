@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Recycle, Eye, EyeOff } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { apiClient } from "@/lib/api"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
@@ -22,21 +23,36 @@ export default function LoginPage() {
     e.preventDefault()
     setIsLoading(true)
 
-    // Mock authentication - replace with real auth later
-    setTimeout(() => {
-      localStorage.setItem(
-        "trash2cash_user",
-        JSON.stringify({
-          id: "1",
-          email,
-          name: "John Doe",
-          role: "user",
-          points: 150,
-        }),
-      )
+    try {
+      // Login with backend
+      const response = await apiClient.login({
+        email,
+        password
+      })
+
+      if (response.status === "success" && response.data?.token) {
+        // Store token and user data locally
+        localStorage.setItem("trash2cash_token", response.data.token)
+        localStorage.setItem(
+          "trash2cash_user",
+          JSON.stringify({
+            id: "1", // You might want to decode the JWT to get user info
+            email,
+            name: email.split('@')[0], // Fallback name
+            role: "user",
+            points: 0,
+          }),
+        )
+        router.push("/dashboard")
+      } else {
+        alert(response.message || "Login failed. Please check your credentials.")
+      }
+    } catch (error) {
+      console.error("Login error:", error)
+      alert("Login failed. Please check your connection and try again.")
+    } finally {
       setIsLoading(false)
-      router.push("/dashboard")
-    }, 1000)
+    }
   }
 
   return (

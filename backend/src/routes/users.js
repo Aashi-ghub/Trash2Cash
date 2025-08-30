@@ -7,6 +7,12 @@ const dbConfig = require('../config/database');
 
 const router = express.Router();
 
+// Check if JWT_SECRET is configured
+if (!process.env.JWT_SECRET) {
+  logger.error('JWT_SECRET environment variable is not set');
+  throw new Error('JWT_SECRET environment variable is required');
+}
+
 // --- Existing Schemas ---
 // ... (keep existing Joi schemas)
 
@@ -20,14 +26,28 @@ router.post('/register', async (req, res) => {
 
   // Basic validation
   if (!username || !email || !password) {
-    return res.status(400).json({ msg: 'Please enter all fields' });
+    return res.status(400).json({ 
+      status: 'error',
+      message: 'Please enter all fields' 
+    });
   }
 
   try {
+    const supabase = dbConfig.getAdminClient();
+    
     // Check for existing user
-    const userExists = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
-    if (userExists.rows.length > 0) {
-      return res.status(400).json({ msg: 'User already exists' });
+    const { data: existingUsers, error: checkError } = await supabase
+      .from('users')
+      .select('*')
+      .eq('email', email)
+      .limit(1);
+      
+    if (checkError) throw checkError;
+    if (existingUsers && existingUsers.length > 0) {
+      return res.status(400).json({ 
+        status: 'error',
+        message: 'User already exists' 
+      });
     }
 
     // Hash password
@@ -35,16 +55,30 @@ router.post('/register', async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, salt);
 
     // Create new user
-    const newUser = await pool.query(
-      'INSERT INTO users (username, email, password_hash, role) VALUES ($1, $2, $3, $4) RETURNING id, username, email, role',
-      [username, email, hashedPassword, role]
-    );
+    const { data: newUser, error: insertError } = await supabase
+      .from('users')
+      .insert({
+        username: username,
+        email: email,
+        password_hash: hashedPassword,
+        role: role
+      })
+      .select('user_id, username, email, role')
+      .single();
+      
+    if (insertError) throw insertError;
 
-    res.status(201).json(newUser.rows[0]);
+    res.status(201).json({
+      status: 'success',
+      data: newUser
+    });
 
   } catch (err) {
     logger.error('Error in /register:', err);
-    res.status(500).send('Server error');
+    res.status(500).json({
+      status: 'error',
+      message: 'Server error'
+    });
   }
 });
 
@@ -56,7 +90,10 @@ router.post('/login', async (req, res) => {
 
   // Basic validation
   if (!email || !password) {
-    return res.status(400).json({ msg: 'Please provide email and password' });
+    return res.status(400).json({ 
+      status: 'error',
+      message: 'Please provide email and password' 
+    });
   }
 
   try {
@@ -71,7 +108,10 @@ router.post('/login', async (req, res) => {
       
     if (userError) throw userError;
     if (!users || users.length === 0) {
-      return res.status(400).json({ msg: 'Invalid credentials' });
+      return res.status(400).json({ 
+        status: 'error',
+        message: 'Invalid credentials' 
+      });
     }
     
     const user = users[0];
@@ -79,7 +119,10 @@ router.post('/login', async (req, res) => {
     // Check password
     const isMatch = await bcrypt.compare(password, user.password_hash);
     if (!isMatch) {
-      return res.status(400).json({ msg: 'Invalid credentials' });
+      return res.status(400).json({ 
+        status: 'error',
+        message: 'Invalid credentials' 
+      });
     }
 
     // Return JWT
@@ -90,13 +133,31 @@ router.post('/login', async (req, res) => {
       },
     };
 
+    const jwtSecret = process.env.JWT_SECRET;
+    if (!jwtSecret) {
+      logger.error('JWT_SECRET is not configured');
+      return res.status(500).json({
+        status: 'error',
+        message: 'Server configuration error'
+      });
+    }
+
     jwt.sign(
       payload,
-      process.env.JWT_SECRET,
+      jwtSecret,
       { expiresIn: '5h' },
       (err, token) => {
-        if (err) throw err;
-        res.json({ token });
+        if (err) {
+          logger.error('JWT signing error:', err);
+          return res.status(500).json({
+            status: 'error',
+            message: 'Server error'
+          });
+        }
+        res.json({
+          status: 'success',
+          data: { token }
+        });
       }
     );
   } catch (err) {

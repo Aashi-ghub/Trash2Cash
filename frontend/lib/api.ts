@@ -1,5 +1,6 @@
 // API Client for Trash2Cash Backend
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://eco-hive-network.onrender.com';
+// Hardcoded for local development - change this to use deployed backend when ready
+const API_BASE_URL = 'http://localhost:3001';
 
 export interface ApiResponse<T = any> {
   status: 'success' | 'error';
@@ -102,9 +103,13 @@ class ApiClient {
   ): Promise<ApiResponse<T>> {
     const url = `${this.baseUrl}${endpoint}`;
     
+    // Get token from localStorage if available
+    const token = typeof window !== 'undefined' ? localStorage.getItem('trash2cash_token') : null;
+    
     const config: RequestInit = {
       headers: {
         'Content-Type': 'application/json',
+        ...(token && { 'Authorization': `Bearer ${token}` }),
         ...options.headers,
       },
       ...options,
@@ -112,10 +117,32 @@ class ApiClient {
 
     try {
       const response = await fetch(url, config);
-      const data = await response.json();
+      
+      // Try to parse JSON response
+      let data;
+      try {
+        data = await response.json();
+      } catch (parseError) {
+        // If JSON parsing fails, create a basic error response
+        data = {
+          status: 'error',
+          message: `Server returned ${response.status}: ${response.statusText}`
+        };
+      }
 
       if (!response.ok) {
-        throw new Error(data.message || `HTTP error! status: ${response.status}`);
+        console.error('API Error Response:', {
+          status: response.status,
+          statusText: response.statusText,
+          url: url,
+          data: data
+        });
+        
+        return {
+          status: 'error',
+          message: data.message || data.msg || `HTTP error! status: ${response.status}`,
+          details: data.details || data.error || response.statusText
+        };
       }
 
       return data;
@@ -131,6 +158,29 @@ class ApiClient {
   // Health Check
   async healthCheck(): Promise<ApiResponse> {
     return this.request('/health');
+  }
+
+  // Authentication API
+  async register(userData: {
+    username: string;
+    email: string;
+    password: string;
+    role?: string;
+  }): Promise<ApiResponse<any>> {
+    return this.request('/api/users/register', {
+      method: 'POST',
+      body: JSON.stringify(userData),
+    });
+  }
+
+  async login(credentials: {
+    email: string;
+    password: string;
+  }): Promise<ApiResponse<{ token: string }>> {
+    return this.request('/api/users/login', {
+      method: 'POST',
+      body: JSON.stringify(credentials),
+    });
   }
 
   // Users API
@@ -275,6 +325,3 @@ class ApiClient {
 
 // Export singleton instance
 export const apiClient = new ApiClient();
-
-// Export types
-export type { User, Bin, BinEvent, AnalyticsInsights, AnalyticsAnomalies, RewardsSummary, DashboardStats };
