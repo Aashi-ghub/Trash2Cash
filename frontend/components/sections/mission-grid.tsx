@@ -52,7 +52,7 @@ export default function MissionGrid() {
             >
               <div className="flex items-start gap-4">
                 <Image
-                  src={`/abstract-geometric-shapes.png?height=48&width=48&query=${encodeURIComponent(item.title + " icon")}`}
+                  src={`../publi`}
                   alt={item.imgAlt}
                   width={48}
                   height={48}

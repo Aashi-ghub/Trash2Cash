@@ -29,6 +29,7 @@ import {
   IndianRupee,
 } from "lucide-react"
 import { useAuth } from "@/components/auth-provider"
+import { ApiStatus } from "@/components/api-status"
 import Link from "next/link"
 
 type DashboardRole = "user" | "host"
@@ -110,6 +111,11 @@ export default function RoleBasedDashboard() {
   ]
 
   const sidebarItems = currentRole === "user" ? userSidebarItems : hostSidebarItems
+
+  // Add API Status to sidebar items for testing
+  const apiTestItems = [
+    { icon: Database, label: "API Status", href: "#api-status" },
+  ]
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/5">
@@ -209,6 +215,19 @@ export default function RoleBasedDashboard() {
                       </Link>
                     </Button>
                   ))}
+                  
+                  {/* API Status for testing */}
+                  <div className="pt-4 border-t">
+                    <p className="text-xs text-muted-foreground px-3 mb-2">API Testing</p>
+                    {apiTestItems.map((item) => (
+                      <Button key={item.label} variant="ghost" className="w-full justify-start" asChild>
+                        <Link href={item.href}>
+                          <item.icon className="w-4 h-4 mr-3" />
+                          {item.label}
+                        </Link>
+                      </Button>
+                    ))}
+                  </div>
                 </nav>
               </div>
             </motion.aside>
@@ -226,6 +245,11 @@ export default function RoleBasedDashboard() {
               transition={{ duration: 0.3 }}
             >
               {currentRole === "user" ? <UserDashboard /> : <HostDashboard />}
+              
+              {/* API Status Component for testing */}
+              <div id="api-status" className="mt-8">
+                <ApiStatus />
+              </div>
             </motion.div>
           </AnimatePresence>
         </main>

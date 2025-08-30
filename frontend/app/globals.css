@@ -38,8 +38,9 @@
   --sidebar-accent-foreground: oklch(0.15 0.02 140);
   --sidebar-border: oklch(0.9 0.01 120);
   --sidebar-ring: oklch(0.45 0.15 160);
-  --font-inter: "Inter", sans-serif;
-  --font-poppins: "Poppins", serif;
+  --font-dosis: "Dosis", sans-serif;
+  --font-exo2: "Exo 2", sans-serif;
+  --font-bungee: "Bungee", "Arial Black", "Helvetica Bold", cursive;
 }
 
 .dark {
@@ -80,8 +81,8 @@
 
 @theme inline {
   /* Fixed font variables to reference Next.js font variables instead of hardcoded strings */
-  --font-sans: var(--font-inter);
-  --font-serif: var(--font-poppins);
+  --font-sans: var(--font-dosis);
+  --font-serif: var(--font-exo2);
   --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 
   --color-background: var(--background);
@@ -126,7 +127,31 @@
   * {
     @apply border-border outline-ring/50;
   }
+  
+  .font-bungee {
+    font-family: var(--font-bungee) !important;
+  }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer components {
+  /* Override any potential conflicting styles */
+  nav {
+    background-color: transparent !important;
+    background: none !important;
+  }
+  
+  /* Target the specific navbar */
+  nav.fixed {
+    background-color: transparent !important;
+    background: none !important;
+  }
+  
+  /* Very specific selector for the navbar */
+  nav.fixed.top-0.z-50 {
+    background-color: transparent !important;
+    background: none !important;
   }
 }
