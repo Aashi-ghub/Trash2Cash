@@ -174,7 +174,7 @@ router.get('/', async (req, res) => {
   try {
     const adminClient = dbConfig.getAdminClient();
     const { data, error } = await adminClient
-      .from('profiles')
+      .from('users')
       .select('*')
       .order('created_at', { ascending: false });
 
@@ -208,7 +208,7 @@ router.get('/:userId', async (req, res) => {
     const adminClient = dbConfig.getAdminClient();
     
     const { data, error } = await adminClient
-      .from('profiles')
+      .from('users')
       .select('*')
       .eq('user_id', userId)
       .single();
@@ -255,7 +255,7 @@ router.post('/', async (req, res) => {
 
     const adminClient = dbConfig.getAdminClient();
     const { data, error: insertError } = await adminClient
-      .from('profiles')
+      .from('users')
       .insert([value])
       .select()
       .single();
@@ -329,9 +329,9 @@ router.post('/admin-create', async (req, res) => {
 
     const createdUser = authData.user;
 
-    // 2) Upsert into profiles (if your setup mirrors auth.users -> profiles)
+    // 2) Upsert into users table
     const { data: profileData, error: profileError } = await adminClient
-      .from('profiles')
+      .from('users')
       .upsert([
         {
           user_id: createdUser.id,
@@ -343,8 +343,8 @@ router.post('/admin-create', async (req, res) => {
       .single();
 
     if (profileError) {
-      // If profiles table is protected or schema differs, return auth user but warn
-      logger.warn('Auth user created, but failed to upsert profiles:', profileError);
+      // If users table is protected or schema differs, return auth user but warn
+      logger.warn('Auth user created, but failed to upsert users table:', profileError);
       return res.status(201).json({
         status: 'partial_success',
         message: 'Auth user created, but failed to sync profile',
@@ -386,7 +386,7 @@ router.put('/:userId', async (req, res) => {
 
     const adminClient = dbConfig.getAdminClient();
     const { data, error: updateError } = await adminClient
-      .from('profiles')
+      .from('users')
       .update(value)
       .eq('user_id', userId)
       .select()
@@ -428,7 +428,7 @@ router.delete('/:userId', async (req, res) => {
     const adminClient = dbConfig.getAdminClient();
     
     const { error } = await adminClient
-      .from('profiles')
+      .from('users')
       .delete()
       .eq('user_id', userId);
 

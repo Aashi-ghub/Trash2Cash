@@ -28,15 +28,18 @@ import {
   Activity,
   IndianRupee,
   Database,
+  RefreshCw,
 } from "lucide-react"
 import { useAuth } from "@/components/auth-provider"
 import { ApiStatus } from "@/components/api-status"
+import { DashboardSkeleton, HostDashboardSkeleton } from "@/components/ui/loading-skeleton"
+import { useUserDashboardData, useHostDashboardData } from "@/lib/hooks/useDashboardData"
 import Link from "next/link"
 
 type DashboardRole = "user" | "host"
 
-// Mock data
-const mockUserStats = {
+// Fallback mock data for when API is not available
+const fallbackUserStats = {
   totalPoints: 1247,
   monthlyPoints: 89,
   itemsRecycled: 156,
@@ -45,33 +48,14 @@ const mockUserStats = {
   nextRankPoints: 253,
 }
 
-const mockHostStats = {
+const fallbackHostStats = {
   totalBins: 12,
   activeBins: 10,
   totalCollections: 234,
-  monthlyRevenue: 153550, // converted from $1850 to INR (1850 * 83)
+  monthlyRevenue: 153550,
   avgFillLevel: 67,
   topPerformingBin: "Downtown Mall",
 }
-
-const mockUserActivity = [
-  { id: 1, type: "recycle", item: "Plastic Bottles", points: 15, date: "2024-01-15", location: "Downtown Mall" },
-  { id: 2, type: "redeem", item: "Coffee Voucher", points: -50, date: "2024-01-14", location: "Rewards Store" },
-  { id: 3, type: "recycle", item: "Aluminum Cans", points: 12, date: "2024-01-13", location: "City Park" },
-]
-
-const mockHostBins = [
-  { id: 1, name: "Downtown Mall", status: "OK", fillLevel: 75, lastCollection: "2 hours ago", revenue: 37350 }, // converted from $450 to INR
-  { id: 2, name: "City Park", status: "Needs Attention", fillLevel: 95, lastCollection: "1 day ago", revenue: 26560 }, // converted from $320 to INR
-  { id: 3, name: "Office Building", status: "OK", fillLevel: 45, lastCollection: "4 hours ago", revenue: 23240 }, // converted from $280 to INR
-]
-
-const mockLeaderboard = [
-  { rank: 1, name: "EcoChampion", points: 2450, avatar: "EC" },
-  { rank: 2, name: "GreenWarrior", points: 2100, avatar: "GW" },
-  { rank: 3, name: "You", points: 1247, avatar: "YU", isCurrentUser: true },
-  { rank: 4, name: "RecycleKing", points: 1180, avatar: "RK" },
-]
 
 export default function RoleBasedDashboard() {
   const { user } = useAuth()
@@ -140,7 +124,9 @@ export default function RoleBasedDashboard() {
             {currentRole === "user" && (
               <div className="flex items-center gap-2 bg-primary/10 px-3 py-1 rounded-full">
                 <Gift className="w-4 h-4 text-primary" />
-                <span className="font-medium text-primary">{mockUserStats.totalPoints} pts</span>
+                <span className="font-medium text-primary">
+                  {user?.points || fallbackUserStats.totalPoints} pts
+                </span>
               </div>
             )}
 
@@ -265,12 +251,47 @@ export default function RoleBasedDashboard() {
 }
 
 function UserDashboard() {
+  const { userStats, userActivity, leaderboard, loading, error, refetch } = useUserDashboardData()
+  const { user } = useAuth()
+
+  if (loading) {
+    return <DashboardSkeleton />
+  }
+
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-serif font-bold text-foreground mb-2">Welcome back, {user?.name || 'User'}!</h1>
+            <p className="text-muted-foreground">Here's your sustainability impact at a glance.</p>
+          </div>
+          <Button onClick={refetch} variant="outline" size="sm">
+            <RefreshCw className="w-4 h-4 mr-2" />
+            Retry
+          </Button>
+        </div>
+        <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4">
+          <p className="text-destructive">Error loading dashboard data: {error}</p>
+        </div>
+      </div>
+    )
+  }
+
+  const stats = userStats || fallbackUserStats
+
   return (
     <div className="space-y-6">
       {/* Welcome Section */}
-      <div>
-        <h1 className="text-3xl font-serif font-bold text-foreground mb-2">Welcome back, User!</h1>
-        <p className="text-muted-foreground">Here's your sustainability impact at a glance.</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-serif font-bold text-foreground mb-2">Welcome back, {user?.name || 'User'}!</h1>
+          <p className="text-muted-foreground">Here's your sustainability impact at a glance.</p>
+        </div>
+        <Button onClick={refetch} variant="outline" size="sm">
+          <RefreshCw className="w-4 h-4 mr-2" />
+          Refresh
+        </Button>
       </div>
 
       {/* Stats Cards */}
@@ -282,7 +303,7 @@ function UserDashboard() {
               <Gift className="h-4 w-4 text-primary" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-primary">{mockUserStats.totalPoints}</div>
+              <div className="text-2xl font-bold text-primary">{stats.totalPoints}</div>
               <Button size="sm" className="mt-2">
                 Claim Rewards
               </Button>
@@ -297,7 +318,7 @@ function UserDashboard() {
               <Recycle className="h-4 w-4 text-secondary" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-secondary">{mockUserStats.itemsRecycled}</div>
+              <div className="text-2xl font-bold text-secondary">{stats.itemsRecycled}</div>
               <p className="text-xs text-muted-foreground">This month</p>
             </CardContent>
           </Card>
@@ -310,7 +331,7 @@ function UserDashboard() {
               <Leaf className="h-4 w-4 text-accent" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-accent">{mockUserStats.co2Saved} kg</div>
+              <div className="text-2xl font-bold text-accent">{stats.co2Saved} kg</div>
               <p className="text-xs text-muted-foreground">Environmental impact</p>
             </CardContent>
           </Card>
@@ -323,7 +344,7 @@ function UserDashboard() {
               <Award className="h-4 w-4 text-primary" />
             </CardHeader>
             <CardContent>
-              <div className="text-lg font-bold text-primary">{mockUserStats.rank}</div>
+              <div className="text-lg font-bold text-primary">{stats.rank}</div>
               <Progress value={75} className="h-2 mt-2" />
             </CardContent>
           </Card>
@@ -360,7 +381,7 @@ function UserDashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {mockLeaderboard.map((user) => (
+              {leaderboard.map((user) => (
                 <motion.div
                   key={user.rank}
                   whileHover={{ scale: 1.02 }}
@@ -396,7 +417,7 @@ function UserDashboard() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {mockUserActivity.map((activity) => (
+            {userActivity.map((activity) => (
               <motion.div
                 key={activity.id}
                 whileHover={{ scale: 1.01 }}
@@ -436,12 +457,47 @@ function UserDashboard() {
 }
 
 function HostDashboard() {
+  const { hostStats, hostBins, loading, error, refetch } = useHostDashboardData()
+  const { user } = useAuth()
+
+  if (loading) {
+    return <HostDashboardSkeleton />
+  }
+
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-serif font-bold text-foreground mb-2">Host Dashboard</h1>
+            <p className="text-muted-foreground">Manage your smart bins and track performance.</p>
+          </div>
+          <Button onClick={refetch} variant="outline" size="sm">
+            <RefreshCw className="w-4 h-4 mr-2" />
+            Retry
+          </Button>
+        </div>
+        <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4">
+          <p className="text-destructive">Error loading dashboard data: {error}</p>
+        </div>
+      </div>
+    )
+  }
+
+  const stats = hostStats || fallbackHostStats
+
   return (
     <div className="space-y-6">
       {/* Welcome Section */}
-      <div>
-        <h1 className="text-3xl font-serif font-bold text-foreground mb-2">Host Dashboard</h1>
-        <p className="text-muted-foreground">Manage your smart bins and track performance.</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-serif font-bold text-foreground mb-2">Host Dashboard</h1>
+          <p className="text-muted-foreground">Manage your smart bins and track performance.</p>
+        </div>
+        <Button onClick={refetch} variant="outline" size="sm">
+          <RefreshCw className="w-4 h-4 mr-2" />
+          Refresh
+        </Button>
       </div>
 
       {/* Host Stats Cards */}
@@ -453,8 +509,8 @@ function HostDashboard() {
               <MapPin className="h-4 w-4 text-primary" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-primary">{mockHostStats.totalBins}</div>
-              <p className="text-xs text-muted-foreground">{mockHostStats.activeBins} active</p>
+              <div className="text-2xl font-bold text-primary">{stats.totalBins}</div>
+              <p className="text-xs text-muted-foreground">{stats.activeBins} active</p>
             </CardContent>
           </Card>
         </motion.div>
@@ -466,7 +522,7 @@ function HostDashboard() {
               <Recycle className="h-4 w-4 text-secondary" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-secondary">{mockHostStats.totalCollections}</div>
+              <div className="text-2xl font-bold text-secondary">{stats.totalCollections}</div>
               <p className="text-xs text-muted-foreground">This month</p>
             </CardContent>
           </Card>
@@ -480,7 +536,7 @@ function HostDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-accent">
-                ₹{mockHostStats.monthlyRevenue.toLocaleString("en-IN")}
+                ₹{stats.monthlyRevenue.toLocaleString("en-IN")}
               </div>
               <p className="text-xs text-muted-foreground">This month</p>
             </CardContent>
@@ -494,8 +550,8 @@ function HostDashboard() {
               <BarChart3 className="h-4 w-4 text-primary" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-primary">{mockHostStats.avgFillLevel}%</div>
-              <Progress value={mockHostStats.avgFillLevel} className="h-2 mt-2" />
+              <div className="text-2xl font-bold text-primary">{stats.avgFillLevel}%</div>
+              <Progress value={stats.avgFillLevel} className="h-2 mt-2" />
             </CardContent>
           </Card>
         </motion.div>
@@ -516,7 +572,7 @@ function HostDashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {mockHostBins.map((bin) => (
+              {hostBins.map((bin) => (
                 <motion.div
                   key={bin.id}
                   whileHover={{ scale: 1.01 }}
@@ -560,7 +616,7 @@ function HostDashboard() {
               <div className="flex items-center justify-between">
                 <span className="text-sm">Operational Bins</span>
                 <Badge variant="secondary">
-                  {mockHostStats.activeBins}/{mockHostStats.totalBins}
+                  {stats.activeBins}/{stats.totalBins}
                 </Badge>
               </div>
               <div className="flex items-center justify-between">

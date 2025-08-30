@@ -137,7 +137,7 @@ export function ApiStatus() {
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Health Check */}
-            <div className="flex items-center justify-between p-3 border rounded-lg">
+            <div key="health" className="flex items-center justify-between p-3 border rounded-lg">
               <div className="flex items-center gap-2">
                 <Database className="w-4 h-4" />
                 <span className="text-sm font-medium">Health</span>
@@ -149,7 +149,7 @@ export function ApiStatus() {
             </div>
 
             {/* Users API */}
-            <div className="flex items-center justify-between p-3 border rounded-lg">
+            <div key="users" className="flex items-center justify-between p-3 border rounded-lg">
               <div className="flex items-center gap-2">
                 <Users className="w-4 h-4" />
                 <span className="text-sm font-medium">Users</span>
@@ -161,7 +161,7 @@ export function ApiStatus() {
             </div>
 
             {/* Bins API */}
-            <div className="flex items-center justify-between p-3 border rounded-lg">
+            <div key="bins" className="flex items-center justify-between p-3 border rounded-lg">
               <div className="flex items-center gap-2">
                 <MapPin className="w-4 h-4" />
                 <span className="text-sm font-medium">Bins</span>
@@ -173,7 +173,7 @@ export function ApiStatus() {
             </div>
 
             {/* Events API */}
-            <div className="flex items-center justify-between p-3 border rounded-lg">
+            <div key="events" className="flex items-center justify-between p-3 border rounded-lg">
               <div className="flex items-center gap-2">
                 <Activity className="w-4 h-4" />
                 <span className="text-sm font-medium">Events</span>
@@ -186,19 +186,19 @@ export function ApiStatus() {
           </div>
 
           <div className="mt-4 flex gap-2">
-            <Button onClick={testAll} size="sm">
+            <Button key="test-all" onClick={testAll} size="sm">
               Test All APIs
             </Button>
-            <Button onClick={testHealth} size="sm" variant="outline">
+            <Button key="test-health" onClick={testHealth} size="sm" variant="outline">
               Health Check
             </Button>
-            <Button onClick={testUsers} size="sm" variant="outline">
+            <Button key="test-users" onClick={testUsers} size="sm" variant="outline">
               Test Users
             </Button>
-            <Button onClick={testBins} size="sm" variant="outline">
+            <Button key="test-bins" onClick={testBins} size="sm" variant="outline">
               Test Bins
             </Button>
-            <Button onClick={testEvents} size="sm" variant="outline">
+            <Button key="test-events" onClick={testEvents} size="sm" variant="outline">
               Test Events
             </Button>
           </div>
