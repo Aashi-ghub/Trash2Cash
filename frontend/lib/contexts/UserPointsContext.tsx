@@ -9,6 +9,7 @@ interface UserPointsData {
   monthlyPoints: number
   rank: string
   nextRankPoints: number
+  co2Saved: number
   loading: boolean
   error: string | null
 }
@@ -39,6 +40,7 @@ export function UserPointsProvider({ children }: { children: ReactNode }) {
           monthlyPoints: data.monthly_points || data.monthlyPoints || 0,
           rank: data.rank || 'Eco Warrior',
           nextRankPoints: data.next_rank_points || data.nextRankPoints || 0,
+          co2Saved: data.co2_saved || 0,
           loading: false,
           error: null,
         }
@@ -49,6 +51,7 @@ export function UserPointsProvider({ children }: { children: ReactNode }) {
           monthlyPoints: 0,
           rank: 'Eco Warrior',
           nextRankPoints: 0,
+          co2Saved: 0,
           loading: false,
           error: 'Invalid response format',
         })
@@ -59,6 +62,7 @@ export function UserPointsProvider({ children }: { children: ReactNode }) {
         monthlyPoints: 0,
         rank: 'Eco Warrior',
         nextRankPoints: 0,
+        co2Saved: 0,
         loading: false,
         error: 'Failed to load points',
       })

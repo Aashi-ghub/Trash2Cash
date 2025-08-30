@@ -31,10 +31,10 @@ import {
   RefreshCw,
 } from "lucide-react"
 import { useAuth } from "@/components/auth-provider"
-import { ApiStatus } from "@/components/api-status"
 import { DashboardSkeleton, HostDashboardSkeleton } from "@/components/ui/loading-skeleton"
 import { useUserDashboardData, useHostDashboardData } from "@/lib/hooks/useDashboardData"
 import { useUserPoints } from "@/lib/contexts/UserPointsContext"
+import { SmartBinMap } from "@/components/ui/smart-bin-map"
 import Link from "next/link"
 
 type DashboardRole = "user" | "host"
@@ -82,7 +82,7 @@ export default function RoleBasedDashboard() {
 
   const userSidebarItems = [
     { icon: BarChart3, label: "Overview", href: "#overview" },
-    { icon: MapPin, label: "Find Bins", href: "#map" },
+    { icon: MapPin, label: "Find Bins", href: "/map" },
     { icon: Gift, label: "Rewards", href: "/rewards" },
     { icon: Activity, label: "Activity", href: "#activity" },
     { icon: Award, label: "Leaderboard", href: "#leaderboard" },
@@ -91,7 +91,7 @@ export default function RoleBasedDashboard() {
 
   const hostSidebarItems = [
     { icon: BarChart3, label: "Overview", href: "#overview" },
-    { icon: MapPin, label: "Bin Management", href: "#bins" },
+    { icon: MapPin, label: "Bin Management", href: "/map" },
     { icon: TrendingUp, label: "Analytics", href: "#analytics" },
     { icon: Gift, label: "Rewards Config", href: "#rewards-config" },
     { icon: Users, label: "User Insights", href: "#users" },
@@ -99,11 +99,6 @@ export default function RoleBasedDashboard() {
   ]
 
   const sidebarItems = currentRole === "user" ? userSidebarItems : hostSidebarItems
-
-  // Add API Status to sidebar items for testing
-  const apiTestItems = [
-    { icon: Database, label: "API Status", href: "#api-status" },
-  ]
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/5">
@@ -211,18 +206,7 @@ export default function RoleBasedDashboard() {
                     </Button>
                   ))}
                   
-                  {/* API Status for testing */}
-                  <div className="pt-4 border-t">
-                    <p className="text-xs text-muted-foreground px-3 mb-2">API Testing</p>
-                    {apiTestItems.map((item) => (
-                      <Button key={item.label} variant="ghost" className="w-full justify-start" asChild>
-                        <Link href={item.href}>
-                          <item.icon className="w-4 h-4 mr-3" />
-                          {item.label}
-                        </Link>
-                      </Button>
-                    ))}
-                  </div>
+
                 </nav>
               </div>
             </motion.aside>
@@ -240,11 +224,6 @@ export default function RoleBasedDashboard() {
               transition={{ duration: 0.3 }}
             >
               {currentRole === "user" ? <UserDashboard /> : <HostDashboard />}
-              
-              {/* API Status Component for testing */}
-              <div id="api-status" className="mt-8">
-                <ApiStatus />
-              </div>
             </motion.div>
           </AnimatePresence>
         </main>
@@ -259,9 +238,9 @@ export default function RoleBasedDashboard() {
 }
 
 function UserDashboard() {
-  const { userStats, userActivity, leaderboard, loading, error, refetch } = useUserDashboardData()
-  const { user } = useAuth()
   const { userPoints } = useUserPoints()
+  const { user } = useAuth()
+  const { userStats, userActivity, leaderboard, loading, error, refetch } = useUserDashboardData(userPoints)
 
   // Use points from context if available, otherwise fall back to userStats
   const displayStats = userPoints ? {
@@ -360,7 +339,13 @@ function UserDashboard() {
               <Leaf className="h-4 w-4 text-accent" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-accent">{stats.co2Saved} kg</div>
+              <div className="text-2xl font-bold text-accent">
+                {userPoints?.loading ? (
+                  <span className="text-muted-foreground">Loading...</span>
+                ) : (
+                  `${userPoints?.co2Saved || 0} kg`
+                )}
+              </div>
               <p className="text-xs text-muted-foreground">Environmental impact</p>
             </CardContent>
           </Card>
@@ -385,24 +370,7 @@ function UserDashboard() {
       {/* Main Content Grid */}
       <div className="grid lg:grid-cols-2 gap-6">
         {/* Nearby Bins Map */}
-        <Card className="border-border/50">
-          <CardHeader>
-            <CardTitle className="font-serif">Nearby Smart Bins</CardTitle>
-            <CardDescription>Find recycling bins near you</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="w-full h-48 bg-muted rounded-lg flex items-center justify-center mb-4">
-              <div className="text-center">
-                <MapPin className="w-12 h-12 text-muted-foreground mx-auto mb-2" />
-                <p className="text-muted-foreground">Interactive map</p>
-              </div>
-            </div>
-            <Button className="w-full">
-              <Navigation className="w-4 h-4 mr-2" />
-              Find Nearest Bin
-            </Button>
-          </CardContent>
-        </Card>
+        <SmartBinMap showDetails={false} />
 
         {/* Leaderboard */}
         <Card className="border-border/50">
@@ -668,6 +636,17 @@ function HostDashboard() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Bin Management with Map */}
+      <Card className="border-border/50">
+        <CardHeader>
+          <CardTitle className="font-serif">Bin Network Overview</CardTitle>
+          <CardDescription>Monitor all your smart bins on the map</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <SmartBinMap showDetails={true} />
+        </CardContent>
+      </Card>
 
       {/* Analytics */}
       <Card className="border-border/50">

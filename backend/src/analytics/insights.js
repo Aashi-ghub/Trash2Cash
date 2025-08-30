@@ -1,5 +1,5 @@
 const { pool } = require('../config/database');
-const { processWithXnode } = require('../services/mockXnode');
+const hybridAiService = require('../services/hybridAiService');
 
 /**
  * Fetches events that have not yet been analyzed and generates AI insights for them.
@@ -22,14 +22,14 @@ const generateAndStoreInsights = async () => {
 
     console.log(`Found ${newEvents.length} new events to analyze.`);
 
-    // Process new events with the mock Xnode service
-    const xnodeResponse = await processWithXnode(newEvents);
+    // Process new events with hybrid AI service
+    const analysis = await hybridAiService.analyzeEvents(newEvents);
 
-    if (xnodeResponse.status !== 'success' || !xnodeResponse.data.insights) {
-      throw new Error('Failed to get insights from Xnode.');
+    if (!analysis || !analysis.insights) {
+      throw new Error('Failed to get insights from AI service.');
     }
 
-    const insights = xnodeResponse.data.insights;
+    const insights = analysis.insights;
 
     // Store the new insights in the database
     const client = await pool.connect();

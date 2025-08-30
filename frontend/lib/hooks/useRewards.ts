@@ -48,7 +48,6 @@ export function useRewards() {
     try {
       // Fetch rewards history for redemption history
       const historyResponse = await apiClient.getRewardsHistory()
-      console.log('🔍 Rewards history response:', historyResponse)
       
       if (historyResponse.status === 'success' && historyResponse.data) {
         const history = historyResponse.data
@@ -61,10 +60,7 @@ export function useRewards() {
             status: 'delivered', // Mock status for now
             code: `CODE${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
           }))
-        console.log('📊 Processed redemption history:', history)
         setRedemptionHistory(history.slice(0, 10)) // Show last 10 redemptions
-      } else {
-        console.log('⚠️ No valid history data:', historyResponse)
       }
 
     } catch (err) {
@@ -110,11 +106,8 @@ export function useRewards() {
     }
 
     try {
-      console.log('🎁 Redeeming reward:', reward.name, 'for', reward.points, 'points')
-      
       // Call the backend API to redeem the reward
       const response = await apiClient.redeemReward(reward.name, reward.points)
-      console.log('✅ Redemption response:', response)
       
       if (response.status === 'success') {
         // Refresh the shared user points context

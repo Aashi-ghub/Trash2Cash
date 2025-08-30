@@ -46,7 +46,7 @@ export interface LeaderboardEntry {
   isCurrentUser?: boolean
 }
 
-export function useUserDashboardData() {
+export function useUserDashboardData(userPoints?: { totalPoints: number } | null) {
   const { user } = useAuth()
   const [userStats, setUserStats] = useState<UserStats | null>(null)
   const [userActivity, setUserActivity] = useState<UserActivity[]>([])
@@ -89,13 +89,40 @@ export function useUserDashboardData() {
         setUserActivity(activities.slice(0, 5)) // Show last 5 activities
       }
 
-      // For now, use mock leaderboard data since we don't have a leaderboard API yet
-      setLeaderboard([
+      // Create leaderboard with real user data and some mock competitors
+      const currentUserPoints = userPoints?.totalPoints || userStats?.totalPoints || 0
+      const userRank = currentUserPoints > 2450 ? 1 : currentUserPoints > 2100 ? 2 : currentUserPoints > 1180 ? 3 : 4
+      
+      const leaderboardData = [
         { rank: 1, name: "EcoChampion", points: 2450, avatar: "EC" },
         { rank: 2, name: "GreenWarrior", points: 2100, avatar: "GW" },
-        { rank: 3, name: user.name || "You", points: userStats?.totalPoints || 0, avatar: "YU", isCurrentUser: true },
-        { rank: 4, name: "RecycleKing", points: 1180, avatar: "RK" },
-      ])
+        { rank: 3, name: "RecycleKing", points: 1180, avatar: "RK" },
+        { rank: 4, name: "EcoExplorer", points: 890, avatar: "EE" },
+      ]
+      
+      // Insert user at correct rank
+      const updatedLeaderboard = [...leaderboardData]
+      const userEntry = {
+        rank: userRank,
+        name: user.name || "You",
+        points: currentUserPoints,
+        avatar: "YU",
+        isCurrentUser: true
+      }
+      
+      // Remove user from their current position if they exist
+      const filteredLeaderboard = updatedLeaderboard.filter(entry => !entry.isCurrentUser)
+      
+      // Insert user at correct rank
+      filteredLeaderboard.splice(userRank - 1, 0, userEntry)
+      
+      // Update ranks
+      const finalLeaderboard = filteredLeaderboard.map((entry, index) => ({
+        ...entry,
+        rank: index + 1
+      }))
+      
+      setLeaderboard(finalLeaderboard)
 
     } catch (err) {
       console.error('Error fetching user dashboard data:', err)
@@ -123,6 +150,45 @@ export function useUserDashboardData() {
   useEffect(() => {
     fetchUserData()
   }, [user])
+
+  // Update leaderboard when userPoints changes
+  useEffect(() => {
+    if (user && userStats) {
+      const currentUserPoints = userPoints?.totalPoints || userStats.totalPoints || 0
+      const userRank = currentUserPoints > 2450 ? 1 : currentUserPoints > 2100 ? 2 : currentUserPoints > 1180 ? 3 : 4
+      
+      const leaderboardData = [
+        { rank: 1, name: "EcoChampion", points: 2450, avatar: "EC" },
+        { rank: 2, name: "GreenWarrior", points: 2100, avatar: "GW" },
+        { rank: 3, name: "RecycleKing", points: 1180, avatar: "RK" },
+        { rank: 4, name: "EcoExplorer", points: 890, avatar: "EE" },
+      ]
+      
+      // Insert user at correct rank
+      const updatedLeaderboard = [...leaderboardData]
+      const userEntry = {
+        rank: userRank,
+        name: user.name || "You",
+        points: currentUserPoints,
+        avatar: "YU",
+        isCurrentUser: true
+      }
+      
+      // Remove user from their current position if they exist
+      const filteredLeaderboard = updatedLeaderboard.filter(entry => !entry.isCurrentUser)
+      
+      // Insert user at correct rank
+      filteredLeaderboard.splice(userRank - 1, 0, userEntry)
+      
+      // Update ranks
+      const finalLeaderboard = filteredLeaderboard.map((entry, index) => ({
+        ...entry,
+        rank: index + 1
+      }))
+      
+      setLeaderboard(finalLeaderboard)
+    }
+  }, [user, userStats, userPoints?.totalPoints])
 
   return {
     userStats,
