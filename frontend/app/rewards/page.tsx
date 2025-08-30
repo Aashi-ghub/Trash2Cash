@@ -15,12 +15,14 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { Gift, Search, Coffee, ShoppingBag, Leaf, Smartphone, Star, Clock, CheckCircle, Recycle } from "lucide-react"
+import { Gift, Search, Coffee, ShoppingBag, Leaf, Smartphone, Star, Clock, CheckCircle, Recycle, Loader2 } from "lucide-react"
 import { useAuth } from "@/components/auth-provider"
+import { useRewards } from "@/lib/hooks/useRewards"
+import { useUserPoints } from "@/lib/contexts/UserPointsContext"
 import Link from "next/link"
 
-// Mock rewards data
-const mockRewards = [
+// Available rewards data
+const availableRewards = [
   {
     id: 1,
     name: "Starbucks Gift Card",
@@ -89,61 +91,41 @@ const mockRewards = [
   },
 ]
 
-const mockRedemptionHistory = [
-  {
-    id: 1,
-    reward: "Starbucks Gift Card",
-    points: 500,
-    date: "2024-01-10",
-    status: "delivered",
-    code: "SB123456789",
-  },
-  {
-    id: 2,
-    reward: "Eco-Friendly Water Bottle",
-    points: 800,
-    date: "2024-01-05",
-    status: "shipped",
-    trackingNumber: "TR987654321",
-  },
-  {
-    id: 3,
-    reward: "Netflix Subscription",
-    points: 600,
-    date: "2023-12-28",
-    status: "delivered",
-    code: "NF456789123",
-  },
-]
-
 export default function RewardsPage() {
   const { user } = useAuth()
+  const { userData, redemptionHistory, loading, error, redeemReward } = useRewards()
+  const { userPoints, refreshUserPoints } = useUserPoints()
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("all")
-  const [selectedReward, setSelectedReward] = useState<(typeof mockRewards)[0] | null>(null)
+  const [selectedReward, setSelectedReward] = useState<(typeof availableRewards)[0] | null>(null)
   const [isRedeeming, setIsRedeeming] = useState(false)
 
-  const userPoints = 1247 // Mock user points
+  const currentPoints = userPoints?.totalPoints || 0
 
-  const filteredRewards = mockRewards.filter((reward) => {
+  const filteredRewards = availableRewards.filter((reward) => {
     const matchesSearch = reward.name.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesCategory = selectedCategory === "all" || reward.category === selectedCategory
     return matchesSearch && matchesCategory
   })
 
-  const handleRedeem = async (reward: (typeof mockRewards)[0]) => {
-    if (userPoints < reward.points) {
+  const handleRedeem = async (reward: (typeof availableRewards)[0]) => {
+    if (currentPoints < reward.points) {
       alert("Insufficient points!")
       return
     }
 
     setIsRedeeming(true)
-    // Mock redemption process
-    setTimeout(() => {
+    try {
+      await redeemReward(reward)
+      // Refresh the shared user points context
+      await refreshUserPoints()
       alert(`Successfully redeemed ${reward.name}!`)
-      setIsRedeeming(false)
       setSelectedReward(null)
-    }, 2000)
+    } catch (err) {
+      alert(`Failed to redeem reward: ${err instanceof Error ? err.message : 'Unknown error'}`)
+    } finally {
+      setIsRedeeming(false)
+    }
   }
 
   const getCategoryIcon = (category: string) => {
@@ -192,7 +174,11 @@ export default function RewardsPage() {
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2 bg-primary/10 px-3 py-1 rounded-full">
                   <Gift className="w-4 h-4 text-primary" />
-                  <span className="font-medium text-primary">{userPoints} pts</span>
+                  {userPoints?.loading ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <span className="font-medium text-primary">{currentPoints} pts</span>
+                  )}
                 </div>
                 <Link href="/dashboard">
                   <Button variant="outline" size="sm">
@@ -276,10 +262,10 @@ export default function RewardsPage() {
                           <DialogTrigger asChild>
                             <Button
                               size="sm"
-                              disabled={!reward.available || userPoints < reward.points}
+                              disabled={!reward.available || currentPoints < reward.points}
                               onClick={() => setSelectedReward(reward)}
                             >
-                              {userPoints < reward.points ? "Insufficient Points" : "Redeem"}
+                              {currentPoints < reward.points ? "Insufficient Points" : "Redeem"}
                             </Button>
                           </DialogTrigger>
                           <DialogContent>
@@ -340,37 +326,52 @@ export default function RewardsPage() {
               <CardDescription>Track your recent reward redemptions</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {mockRedemptionHistory.map((redemption) => (
-                  <div key={redemption.id} className="flex items-center justify-between py-3 border-b last:border-b-0">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-secondary/10 rounded-lg flex items-center justify-center">
-                        <Gift className="w-5 h-5 text-secondary" />
+              {loading ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="w-6 h-6 animate-spin" />
+                </div>
+              ) : error ? (
+                <div className="text-center py-8">
+                  <p className="text-muted-foreground">Failed to load redemption history</p>
+                </div>
+              ) : redemptionHistory.length === 0 ? (
+                <div className="text-center py-8">
+                  <Gift className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-muted-foreground">No redemption history yet</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {redemptionHistory.map((redemption) => (
+                    <div key={redemption.id} className="flex items-center justify-between py-3 border-b last:border-b-0">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-secondary/10 rounded-lg flex items-center justify-center">
+                          <Gift className="w-5 h-5 text-secondary" />
+                        </div>
+                        <div>
+                          <p className="font-medium">{redemption.reward}</p>
+                          <p className="text-sm text-muted-foreground flex items-center gap-1">
+                            <Clock className="w-3 h-3" />
+                            {redemption.date}
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="font-medium">{redemption.reward}</p>
-                        <p className="text-sm text-muted-foreground flex items-center gap-1">
-                          <Clock className="w-3 h-3" />
-                          {redemption.date}
-                        </p>
+                      <div className="text-right">
+                        <p className="font-medium text-secondary">-{redemption.points} pts</p>
+                        <div className="flex items-center gap-1">
+                          <CheckCircle className={`w-3 h-3 ${getStatusColor(redemption.status)}`} />
+                          <span className={`text-sm capitalize ${getStatusColor(redemption.status)}`}>
+                            {redemption.status}
+                          </span>
+                        </div>
+                        {redemption.code && <p className="text-xs text-muted-foreground mt-1">Code: {redemption.code}</p>}
+                        {redemption.trackingNumber && (
+                          <p className="text-xs text-muted-foreground mt-1">Tracking: {redemption.trackingNumber}</p>
+                        )}
                       </div>
                     </div>
-                    <div className="text-right">
-                      <p className="font-medium text-secondary">-{redemption.points} pts</p>
-                      <div className="flex items-center gap-1">
-                        <CheckCircle className={`w-3 h-3 ${getStatusColor(redemption.status)}`} />
-                        <span className={`text-sm capitalize ${getStatusColor(redemption.status)}`}>
-                          {redemption.status}
-                        </span>
-                      </div>
-                      {redemption.code && <p className="text-xs text-muted-foreground mt-1">Code: {redemption.code}</p>}
-                      {redemption.trackingNumber && (
-                        <p className="text-xs text-muted-foreground mt-1">Tracking: {redemption.trackingNumber}</p>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>

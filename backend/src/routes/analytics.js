@@ -215,4 +215,54 @@ router.get('/dashboard-stats/me', auth, async (req, res) => {
   }
 });
 
+/**
+ * @route   POST /api/analytics/rewards/redeem
+ * @desc    Redeem a reward (creates negative points entry)
+ * @access  Private
+ */
+router.post('/rewards/redeem', auth, async (req, res) => {
+  try {
+    const { reward_name, points_cost } = req.body;
+
+    if (!reward_name || !points_cost) {
+      return res.status(400).json({ 
+        status: 'error',
+        message: 'Reward name and points cost are required' 
+      });
+    }
+
+    const supabase = dbConfig.getAdminClient();
+
+    // Create a negative points entry for redemption
+    const { data: redemption, error } = await supabase
+      .from('rewards_ledger')
+      .insert({
+        user_id: req.auth.userId,
+        event_id: `redemption_${Date.now()}`, // Mock event ID
+        points_earned: -points_cost, // Negative points for redemption
+        reason: `Redeemed: ${reward_name}`,
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    res.json({
+      status: 'success',
+      data: {
+        redemption_id: redemption.id,
+        reward_name,
+        points_cost,
+        remaining_points: 0, // You could calculate this if needed
+      }
+    });
+  } catch (error) {
+    console.error('Error redeeming reward:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Failed to redeem reward'
+    });
+  }
+});
+
 module.exports = router;

@@ -81,7 +81,7 @@ export function useUserDashboardData() {
         const activities = activityResponse.data.map((item: any, index: number) => ({
           id: item.id || index.toString(),
           type: item.points_earned > 0 ? 'recycle' : 'redeem',
-          item: item.description || 'Recycling Activity',
+          item: item.reason || 'Recycling Activity',
           points: item.points_earned || 0,
           date: new Date(item.created_at).toLocaleDateString(),
           location: item.bin_events?.bins?.location || 'Smart Bin',
@@ -152,7 +152,7 @@ export function useHostDashboardData() {
       const binsResponse = await apiClient.getBinsByUser(user.id)
       if (binsResponse.status === 'success' && binsResponse.data) {
         const bins = binsResponse.data.map((bin: any) => ({
-          id: bin.id,
+          id: bin.bin_id,
           name: bin.location || `Bin ${bin.bin_code}`,
           status: bin.status === 'active' ? 'OK' : 'Needs Attention',
           fillLevel: bin.fill_level_pct || 0,

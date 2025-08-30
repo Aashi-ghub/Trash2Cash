@@ -1,6 +1,7 @@
 import type React from "react"
 import type { Metadata } from "next"
 import { AuthProvider } from "@/components/auth-provider"
+import { UserPointsProvider } from "@/lib/contexts/UserPointsContext"
 import "./globals.css"
 
 export const metadata: Metadata = {
@@ -17,7 +18,11 @@ export default function RootLayout({
   return (
     <html lang="en" className="antialiased">
       <body className="font-sans">
-        <AuthProvider>{children}</AuthProvider>
+        <AuthProvider>
+          <UserPointsProvider>
+            {children}
+          </UserPointsProvider>
+        </AuthProvider>
       </body>
     </html>
   )

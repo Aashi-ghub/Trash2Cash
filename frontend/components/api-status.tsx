@@ -214,8 +214,8 @@ export function ApiStatus() {
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              {data.users.slice(0, 3).map((user: any) => (
-                <div key={user.id} className="flex items-center justify-between p-2 border rounded">
+              {data.users.slice(0, 3).map((user: any, index: number) => (
+                <div key={user.id || `user-${index}`} className="flex items-center justify-between p-2 border rounded">
                   <div>
                     <p className="font-medium">{user.display_name}</p>
                     <p className="text-sm text-muted-foreground">{user.email}</p>
@@ -236,8 +236,8 @@ export function ApiStatus() {
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              {data.bins.slice(0, 3).map((bin: any) => (
-                <div key={bin.id} className="flex items-center justify-between p-2 border rounded">
+              {data.bins.slice(0, 3).map((bin: any, index: number) => (
+                <div key={bin.id || `bin-${index}`} className="flex items-center justify-between p-2 border rounded">
                   <div>
                     <p className="font-medium">{bin.bin_code}</p>
                     <p className="text-sm text-muted-foreground">{bin.location}</p>
@@ -260,8 +260,8 @@ export function ApiStatus() {
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              {data.events.slice(0, 3).map((event: any) => (
-                <div key={event.id} className="flex items-center justify-between p-2 border rounded">
+              {data.events.slice(0, 3).map((event: any, index: number) => (
+                <div key={event.id || `event-${index}`} className="flex items-center justify-between p-2 border rounded">
                   <div>
                     <p className="font-medium">Bin Event</p>
                     <p className="text-sm text-muted-foreground">

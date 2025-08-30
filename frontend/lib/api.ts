@@ -321,6 +321,16 @@ class ApiClient {
   async getDashboardStats(): Promise<ApiResponse<DashboardStats>> {
     return this.request('/api/analytics/dashboard-stats/me');
   }
+
+  async redeemReward(rewardName: string, pointsCost: number): Promise<ApiResponse<any>> {
+    return this.request('/api/analytics/rewards/redeem', {
+      method: 'POST',
+      body: JSON.stringify({
+        reward_name: rewardName,
+        points_cost: pointsCost,
+      }),
+    });
+  }
 }
 
 // Export singleton instance

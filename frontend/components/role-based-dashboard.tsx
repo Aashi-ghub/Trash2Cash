@@ -34,6 +34,7 @@ import { useAuth } from "@/components/auth-provider"
 import { ApiStatus } from "@/components/api-status"
 import { DashboardSkeleton, HostDashboardSkeleton } from "@/components/ui/loading-skeleton"
 import { useUserDashboardData, useHostDashboardData } from "@/lib/hooks/useDashboardData"
+import { useUserPoints } from "@/lib/contexts/UserPointsContext"
 import Link from "next/link"
 
 type DashboardRole = "user" | "host"
@@ -59,6 +60,8 @@ const fallbackHostStats = {
 
 export default function RoleBasedDashboard() {
   const { user } = useAuth()
+  const { userStats, loading } = useUserDashboardData()
+  const { userPoints } = useUserPoints()
   const [currentRole, setCurrentRole] = useState<DashboardRole>("user")
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [roleDropdownOpen, setRoleDropdownOpen] = useState(false)
@@ -124,9 +127,13 @@ export default function RoleBasedDashboard() {
             {currentRole === "user" && (
               <div className="flex items-center gap-2 bg-primary/10 px-3 py-1 rounded-full">
                 <Gift className="w-4 h-4 text-primary" />
-                <span className="font-medium text-primary">
-                  {user?.points || fallbackUserStats.totalPoints} pts
-                </span>
+                {userPoints?.loading ? (
+                  <span className="font-medium text-primary">Loading...</span>
+                ) : (
+                  <span className="font-medium text-primary">
+                    {userPoints?.totalPoints || fallbackUserStats.totalPoints} pts
+                  </span>
+                )}
               </div>
             )}
 
@@ -253,12 +260,22 @@ export default function RoleBasedDashboard() {
 function UserDashboard() {
   const { userStats, userActivity, leaderboard, loading, error, refetch } = useUserDashboardData()
   const { user } = useAuth()
+  const { userPoints } = useUserPoints()
 
-  if (loading) {
+  // Use points from context if available, otherwise fall back to userStats
+  const displayStats = userPoints ? {
+    ...userStats,
+    totalPoints: userPoints.totalPoints,
+    monthlyPoints: userPoints.monthlyPoints,
+    rank: userPoints.rank,
+    nextRankPoints: userPoints.nextRankPoints,
+  } : userStats
+
+  if (loading && !userPoints) {
     return <DashboardSkeleton />
   }
 
-  if (error) {
+  if (error && !userPoints) {
     return (
       <div className="space-y-6">
         <div className="flex items-center justify-between">
@@ -278,7 +295,7 @@ function UserDashboard() {
     )
   }
 
-  const stats = userStats || fallbackUserStats
+  const stats = displayStats || fallbackUserStats
 
   return (
     <div className="space-y-6">
@@ -303,10 +320,18 @@ function UserDashboard() {
               <Gift className="h-4 w-4 text-primary" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-primary">{stats.totalPoints}</div>
-              <Button size="sm" className="mt-2">
-                Claim Rewards
-              </Button>
+              <div className="text-2xl font-bold text-primary">
+                {userPoints?.loading ? (
+                  <span className="text-muted-foreground">Loading...</span>
+                ) : (
+                  userPoints?.totalPoints || fallbackUserStats.totalPoints
+                )}
+              </div>
+              <Link href="/rewards">
+                <Button size="sm" className="mt-2">
+                  Claim Rewards
+                </Button>
+              </Link>
             </CardContent>
           </Card>
         </motion.div>
@@ -318,7 +343,9 @@ function UserDashboard() {
               <Recycle className="h-4 w-4 text-secondary" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-secondary">{stats.itemsRecycled}</div>
+              <div className="text-2xl font-bold text-secondary">
+                {userPoints?.monthlyPoints || stats.itemsRecycled}
+              </div>
               <p className="text-xs text-muted-foreground">This month</p>
             </CardContent>
           </Card>
@@ -344,7 +371,9 @@ function UserDashboard() {
               <Award className="h-4 w-4 text-primary" />
             </CardHeader>
             <CardContent>
-              <div className="text-lg font-bold text-primary">{stats.rank}</div>
+              <div className="text-lg font-bold text-primary">
+                {userPoints?.rank || stats.rank}
+              </div>
               <Progress value={75} className="h-2 mt-2" />
             </CardContent>
           </Card>
