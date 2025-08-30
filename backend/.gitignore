@@ -1,0 +1,24 @@
+# Eco-Hive Network specific ignores
+.env
+/node_modules
+/dist
+/build
+/coverage
+/logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnp/
+.pnp.js
+.pnp.cjs
+
+# Editor-specific ignores
+.vscode/
+.idea/
+
+# OS-specific ignores
+.DS_Store
+Thumbs.db
+
+# Test-specific ignores
+/test/

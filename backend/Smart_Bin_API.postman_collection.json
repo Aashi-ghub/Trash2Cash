@@ -1,0 +1,445 @@
+{
+  "info": {
+    "name": "Smart Bin API - Phase 1",
+    "description": "Complete API collection for testing the Smart Bin backend",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/health",
+          "host": ["{{base_url}}"],
+          "path": ["health"]
+        }
+      }
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Get All Users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users"]
+            }
+          }
+        },
+        {
+          "name": "Create Admin User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@smartbin.com\",\n  \"role\": \"admin\",\n  \"display_name\": \"System Administrator\",\n  \"contact_phone\": \"+1234567890\",\n  \"contact_address\": \"123 Admin Street, City, State\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users"]
+            }
+          }
+        },
+        {
+          "name": "Create Host User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"host1@smartbin.com\",\n  \"role\": \"host\",\n  \"display_name\": \"John Doe\",\n  \"contact_phone\": \"+1234567891\",\n  \"contact_address\": \"456 Host Avenue, City, State\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users"]
+            }
+          }
+        },
+        {
+          "name": "Create Device User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"device1@smartbin.com\",\n  \"role\": \"device\",\n  \"display_name\": \"Smart Bin Device 001\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users"]
+            }
+          }
+        },
+        {
+          "name": "Get User by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users/{{user_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "{{user_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Update User",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"display_name\": \"Updated Name\",\n  \"contact_phone\": \"+1234567899\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users/{{user_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "{{user_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete User",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users/{{user_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "{{user_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Bins",
+      "item": [
+        {
+          "name": "Get All Bins",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/bins",
+              "host": ["{{base_url}}"],
+              "path": ["api", "bins"]
+            }
+          }
+        },
+        {
+          "name": "Create Bin",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bin_code\": \"BIN001\",\n  \"user_id\": \"{{host_user_id}}\",\n  \"location\": \"Downtown Mall - Food Court\",\n  \"latitude\": 40.7128,\n  \"longitude\": -74.0060,\n  \"status\": \"active\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/bins",
+              "host": ["{{base_url}}"],
+              "path": ["api", "bins"]
+            }
+          }
+        },
+        {
+          "name": "Get Bin by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/bins/{{bin_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "bins", "{{bin_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Get Bins by User",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/bins/user/{{user_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "bins", "user", "{{user_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Bin",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"maintenance\",\n  \"location\": \"Updated Location\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/bins/{{bin_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "bins", "{{bin_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Get Bin Statistics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/bins/{{bin_id}}/stats",
+              "host": ["{{base_url}}"],
+              "path": ["api", "bins", "{{bin_id}}", "stats"]
+            }
+          }
+        },
+        {
+          "name": "Delete Bin",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/bins/{{bin_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "bins", "{{bin_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Events",
+      "item": [
+        {
+          "name": "Get All Events",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/events",
+              "host": ["{{base_url}}"],
+              "path": ["api", "events"]
+            }
+          }
+        },
+        {
+          "name": "Get Events with Pagination",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/events?limit=10&offset=0",
+              "host": ["{{base_url}}"],
+              "path": ["api", "events"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Single Event",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bin_id\": \"{{bin_id}}\",\n  \"user_id\": \"{{device_user_id}}\",\n  \"timestamp_utc\": \"2024-01-15T10:30:00Z\",\n  \"categories\": {\n    \"plastic\": 5,\n    \"paper\": 8,\n    \"metal\": 2,\n    \"glass\": 1,\n    \"organic\": 12\n  },\n  \"payload_json\": {\n    \"sensor_data\": {\n      \"temperature\": 22.5,\n      \"humidity\": 45.2,\n      \"pressure\": 1013.2\n    },\n    \"device_info\": {\n      \"firmware_version\": \"1.2.3\",\n      \"battery_voltage\": 3.8\n    }\n  },\n  \"hv_count\": 3,\n  \"lv_count\": 6,\n  \"org_count\": 8,\n  \"battery_pct\": 85.5,\n  \"fill_level_pct\": 65.2,\n  \"weight_kg_total\": 12.5,\n  \"weight_kg_delta\": 2.1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/events",
+              "host": ["{{base_url}}"],
+              "path": ["api", "events"]
+            }
+          }
+        },
+        {
+          "name": "Create Bulk Events",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"events\": [\n    {\n      \"bin_id\": \"{{bin_id}}\",\n      \"user_id\": \"{{device_user_id}}\",\n      \"timestamp_utc\": \"2024-01-15T09:00:00Z\",\n      \"categories\": {\n        \"plastic\": 3,\n        \"paper\": 5,\n        \"metal\": 1,\n        \"glass\": 0,\n        \"organic\": 8\n      },\n      \"payload_json\": {\n        \"sensor_data\": {\n          \"temperature\": 21.8,\n          \"humidity\": 42.1,\n          \"pressure\": 1012.8\n        }\n      },\n      \"hv_count\": 2,\n      \"lv_count\": 4,\n      \"org_count\": 6,\n      \"battery_pct\": 87.2,\n      \"fill_level_pct\": 45.8,\n      \"weight_kg_total\": 8.3,\n      \"weight_kg_delta\": 1.5\n    },\n    {\n      \"bin_id\": \"{{bin_id}}\",\n      \"user_id\": \"{{device_user_id}}\",\n      \"timestamp_utc\": \"2024-01-15T10:00:00Z\",\n      \"categories\": {\n        \"plastic\": 4,\n        \"paper\": 6,\n        \"metal\": 2,\n        \"glass\": 1,\n        \"organic\": 10\n      },\n      \"payload_json\": {\n        \"sensor_data\": {\n          \"temperature\": 22.1,\n          \"humidity\": 43.5,\n          \"pressure\": 1013.0\n        }\n      },\n      \"hv_count\": 3,\n      \"lv_count\": 5,\n      \"org_count\": 7,\n      \"battery_pct\": 86.8,\n      \"fill_level_pct\": 55.3,\n      \"weight_kg_total\": 10.2,\n      \"weight_kg_delta\": 1.9\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/events/bulk",
+              "host": ["{{base_url}}"],
+              "path": ["api", "events", "bulk"]
+            }
+          }
+        },
+        {
+          "name": "Get Events by Bin",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/events/bin/{{bin_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "events", "bin", "{{bin_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Get Events with Date Filter",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/events?start_date=2024-01-15T00:00:00Z&end_date=2024-01-15T23:59:59Z",
+              "host": ["{{base_url}}"],
+              "path": ["api", "events"],
+              "query": [
+                {
+                  "key": "start_date",
+                  "value": "2024-01-15T00:00:00Z"
+                },
+                {
+                  "key": "end_date",
+                  "value": "2024-01-15T23:59:59Z"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Event by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/events/{{event_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "events", "{{event_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Event",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fill_level_pct\": 75.5,\n  \"battery_pct\": 82.1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/events/{{event_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "events", "{{event_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Event",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/events/{{event_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "events", "{{event_id}}"]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "user_id",
+      "value": "replace_with_actual_user_id",
+      "type": "string"
+    },
+    {
+      "key": "host_user_id",
+      "value": "replace_with_actual_host_user_id",
+      "type": "string"
+    },
+    {
+      "key": "device_user_id",
+      "value": "replace_with_actual_device_user_id",
+      "type": "string"
+    },
+    {
+      "key": "bin_id",
+      "value": "replace_with_actual_bin_id",
+      "type": "string"
+    },
+    {
+      "key": "event_id",
+      "value": "replace_with_actual_event_id",
+      "type": "string"
+    }
+  ]
+} 
