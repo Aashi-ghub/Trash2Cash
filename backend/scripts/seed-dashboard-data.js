@@ -16,7 +16,7 @@ async function seedDashboardData() {
 
   try {
     // Create a test user
-    const { data: user, error: userError } = await supabase
+    let { data: user, error: userError } = await supabase
       .from('users')
       .insert({
         username: 'testuser',

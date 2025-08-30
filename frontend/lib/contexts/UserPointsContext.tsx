@@ -30,13 +30,15 @@ export function UserPointsProvider({ children }: { children: ReactNode }) {
     try {
       const response = await apiClient.getRewardsSummary()
       
-      if (response.status === 'success' && response.data) {
-        const data = response.data
+      // Handle both direct data response and wrapped response
+      const data = response.data || response
+      
+      if (data && (data.total_points !== undefined || data.totalPoints !== undefined)) {
         const pointsData = {
-          totalPoints: data.total_points || 0,
-          monthlyPoints: data.monthly_points || 0,
+          totalPoints: data.total_points || data.totalPoints || 0,
+          monthlyPoints: data.monthly_points || data.monthlyPoints || 0,
           rank: data.rank || 'Eco Warrior',
-          nextRankPoints: data.next_rank_points || 0,
+          nextRankPoints: data.next_rank_points || data.nextRankPoints || 0,
           loading: false,
           error: null,
         }
@@ -48,11 +50,10 @@ export function UserPointsProvider({ children }: { children: ReactNode }) {
           rank: 'Eco Warrior',
           nextRankPoints: 0,
           loading: false,
-          error: response.message || 'Failed to fetch points',
+          error: 'Invalid response format',
         })
       }
     } catch (err) {
-      console.error('Error fetching user points:', err)
       setUserPoints({
         totalPoints: 0,
         monthlyPoints: 0,

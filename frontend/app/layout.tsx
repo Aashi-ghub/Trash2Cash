@@ -17,7 +17,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="antialiased">
-      <body className="font-sans">
+      <body className="font-sans" suppressHydrationWarning={true}>
         <AuthProvider>
           <UserPointsProvider>
             {children}

@@ -179,6 +179,7 @@ export default function RewardsPage() {
                   ) : (
                     <span className="font-medium text-primary">{currentPoints} pts</span>
                   )}
+
                 </div>
                 <Link href="/dashboard">
                   <Button variant="outline" size="sm">

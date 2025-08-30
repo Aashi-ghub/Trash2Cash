@@ -84,7 +84,7 @@ CREATE TABLE IF NOT EXISTS anomalies (
 CREATE TABLE IF NOT EXISTS rewards_ledger (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID NOT NULL,
-    event_id UUID NOT NULL,
+    event_id UUID, -- Made nullable to allow redemptions
     points_earned INTEGER NOT NULL,
     reason VARCHAR(255),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,

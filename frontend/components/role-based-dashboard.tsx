@@ -131,9 +131,10 @@ export default function RoleBasedDashboard() {
                   <span className="font-medium text-primary">Loading...</span>
                 ) : (
                   <span className="font-medium text-primary">
-                    {userPoints?.totalPoints || fallbackUserStats.totalPoints} pts
+                    {userPoints?.totalPoints || 0} pts
                   </span>
                 )}
+
               </div>
             )}
 
@@ -324,9 +325,10 @@ function UserDashboard() {
                 {userPoints?.loading ? (
                   <span className="text-muted-foreground">Loading...</span>
                 ) : (
-                  userPoints?.totalPoints || fallbackUserStats.totalPoints
+                  userPoints?.totalPoints || 0
                 )}
               </div>
+
               <Link href="/rewards">
                 <Button size="sm" className="mt-2">
                   Claim Rewards
