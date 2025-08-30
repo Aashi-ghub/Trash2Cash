@@ -205,12 +205,12 @@ export default function AdminPanel() {
         <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-16">
-              <div className="flex items-center gap-2">
+              <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
                 <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
                   <Shield className="w-5 h-5 text-primary-foreground" />
                 </div>
                 <span className="font-serif font-bold text-xl text-foreground">Trash2Cash Admin</span>
-              </div>
+              </Link>
               <div className="flex items-center gap-4">
                 {mockSystemStats.systemAlerts > 0 && (
                   <div className="flex items-center gap-2 bg-destructive/10 px-3 py-1 rounded-full">

@@ -2,16 +2,16 @@
 
 export function WhyJoinUsSection() {
   return (
-    <section className="w-full bg-white py-12 md:py-20 pb-8 md:pb-8">
+    <section className="w-full bg-white py-12 md:py-20 pb-8 md:pb-8 font-dosis">
       <div className="mx-auto w-full max-w-6xl px-4 md:px-6">
         {/* Green top section (1/4th) with rounded borders */}
         <div className="relative overflow-hidden rounded-[36px] bg-emerald-900 text-white h-64 md:h-96">
           {/* top subtle white border like in reference */}
           <div className="absolute left-0 right-0 top-0 h-[2px] bg-white/70" aria-hidden="true" />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-0 h-full">
-            <div className="p-8 md:p-12 lg:p-16 flex flex-col justify-center">
+            <div className="p-8 md:p-12 lg:p-16 flex flex-col justify-center font-dosis">
               <h2 className="text-pretty text-3xl md:text-4xl font-semibold font-bungee">Why Join Us?</h2>
-              <p className="mt-4 text-white/80 leading-relaxed">
+              <p className="mt-4 text-white/80 leading-relaxed font-dosis">
                 Our platform is more than just a game - it's a transformative experience that empowers you to become a catalyst for positive change. By participating in our gamified eco-friendly challenges, you'll not only learn valuable lessons but also
               </p>
             </div>

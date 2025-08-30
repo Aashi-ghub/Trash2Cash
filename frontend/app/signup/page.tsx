@@ -78,12 +78,12 @@ export default function SignupPage() {
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/5 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Logo */}
-        <div className="flex items-center justify-center gap-2 mb-8">
+        <Link href="/" className="flex items-center justify-center gap-2 mb-8 hover:opacity-80 transition-opacity">
           <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
             <Recycle className="w-6 h-6 text-primary-foreground" />
           </div>
           <span className="font-serif font-bold text-2xl text-foreground">Trash2Cash</span>
-        </div>
+        </Link>
 
         <Card className="border-border/50 shadow-lg">
           <CardHeader className="text-center">

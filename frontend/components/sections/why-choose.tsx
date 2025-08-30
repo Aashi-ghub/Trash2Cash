@@ -48,11 +48,11 @@ const cards: Card[] = [
 
 export function WhyChooseSection() {
   return (
-    <section className="w-full bg-emerald-950 text-white py-16 md:py-24">
+    <section className="w-full bg-emerald-950 text-white py-16 md:py-24 font-dosis">
       <div className="mx-auto max-w-6xl px-4 md:px-6">
         <header className="mb-10 md:mb-14 text-center">
           <h2 className="text-pretty text-3xl md:text-4xl font-semibold font-bungee">Why Choose Trash2Cash</h2>
-          <p className="mt-3 text-base md:text-lg text-white/70 max-w-2xl mx-auto">
+          <p className="mt-3 text-base md:text-lg text-white/70 max-w-2xl mx-auto font-dosis">
             Empowering individuals to take meaningful steps toward a greener future.
           </p>
         </header>
@@ -60,13 +60,13 @@ export function WhyChooseSection() {
           {cards.map((c, idx) => (
             <article
               key={c.title}
-              className="rounded-xl border border-white/20 bg-emerald-900/40 p-6 md:p-8 transition hover:bg-emerald-900/60 text-center"
+              className="rounded-xl border border-white/20 bg-emerald-900/40 p-6 md:p-8 transition hover:bg-emerald-900/60 text-center font-dosis"
             >
               <div className="mb-4 h-10 w-10 rounded-md bg-emerald-700/30 flex items-center justify-center mx-auto">
                 <img src={c.icon} alt={c.iconAlt} className="h-8 w-8" />
               </div>
-              <h3 className="text-lg md:text-xl font-semibold">{c.title}</h3>
-              <p className="mt-2 text-sm md:text-base text-white/70">{c.desc}</p>
+              <h3 className="text-lg md:text-xl font-semibold font-dosis">{c.title}</h3>
+              <p className="mt-2 text-sm md:text-base text-white/70 font-dosis">{c.desc}</p>
             </article>
           ))}
         </div>

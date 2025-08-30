@@ -1,0 +1,12 @@
+/* Home page specific font styles */
+.font-bungee {
+  font-family: var(--font-bungee) !important;
+}
+
+.font-dosis {
+  font-family: var(--font-dosis) !important;
+}
+
+.font-exo2 {
+  font-family: var(--font-exo2) !important;
+}

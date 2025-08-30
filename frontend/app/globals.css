@@ -38,9 +38,9 @@
   --sidebar-accent-foreground: oklch(0.15 0.02 140);
   --sidebar-border: oklch(0.9 0.01 120);
   --sidebar-ring: oklch(0.45 0.15 160);
-  --font-dosis: "Dosis", sans-serif;
-  --font-exo2: "Exo 2", sans-serif;
-  --font-bungee: "Bungee", "Arial Black", "Helvetica Bold", cursive;
+  --font-dosis: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  --font-exo2: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  --font-bungee: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
 }
 
 .dark {
@@ -80,9 +80,9 @@
 }
 
 @theme inline {
-  /* Fixed font variables to reference Next.js font variables instead of hardcoded strings */
-  --font-sans: var(--font-dosis);
-  --font-serif: var(--font-exo2);
+  /* Use system fonts as default */
+  --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
   --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 
   --color-background: var(--background);
@@ -128,9 +128,6 @@
     @apply border-border outline-ring/50;
   }
   
-  .font-bungee {
-    font-family: var(--font-bungee) !important;
-  }
   body {
     @apply bg-background text-foreground;
   }
