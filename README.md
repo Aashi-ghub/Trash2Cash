@@ -7,7 +7,7 @@ Transform waste disposal into a rewarding experience with our IoT-powered smart 
 ## 🚀 **Live Demo**
 
 - **Frontend**: [https://trash2-cash-r4vc.vercel.app/](https://trash2-cash-r4vc.vercel.app/)
-- **Backend API**: [https://eco-hive-network.onrender.com](https://eco-hive-network.onrender.com)
+- **Backend API**: [https://trash2cash-j8zs.onrender.com](https://trash2cash-j8zs.onrender.com)
 - **API Health Check**: [https://eco-hive-network.onrender.com/health](https://eco-hive-network.onrender.com/health)
 
 ## 🎯 **Demo Credentials**
@@ -109,7 +109,7 @@ cp env.example .env.local
 
 Edit `.env.local`:
 ```env
-NEXT_PUBLIC_API_BASE_URL=http://localhost:3001
+NEXT_PUBLIC_API_BASE_URL=https://trash2cash-j8zs.onrender.com
 ```
 
 ### **4. Database Setup**
@@ -127,7 +127,7 @@ npm run dev
 
 # Or start separately:
 npm run dev:frontend  # Frontend on http://localhost:3000
-npm run dev:backend   # Backend on http://localhost:3001
+npm run dev:backend   # Backend on https://trash2cash-j8zs.onrender.com
 ```
 
 ## 📊 **API Documentation**
@@ -155,7 +155,7 @@ npm run dev:backend   # Backend on http://localhost:3001
 ### **API Testing**
 ```bash
 # Test backend health
-curl http://localhost:3001/health
+curl https://trash2cash-j8zs.onrender.com/health
 
 # Test authentication
 cd backend

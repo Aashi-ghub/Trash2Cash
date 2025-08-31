@@ -24,7 +24,7 @@ if (user) {
 // Test API call
 async function testApi() {
   try {
-    const response = await fetch('http://localhost:3001/api/users/me', {
+    const response = await fetch('https://trash2cash-j8zs.onrender.com/api/users/me', {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'

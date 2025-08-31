@@ -33,9 +33,9 @@ function log(message, color = 'reset') {
 // Check if backend is running
 function checkBackend() {
   return new Promise((resolve) => {
-    const req = http.get('http://localhost:3001/health', (res) => {
+    const req = http.get('https://trash2cash-j8zs.onrender.com/health', (res) => {
       if (res.statusCode === 200) {
-        log('✅ Backend is running on http://localhost:3001', 'green');
+        log('✅ Backend is running on https://trash2cash-j8zs.onrender.com', 'green');
         resolve(true);
       } else {
         log('❌ Backend responded with status: ' + res.statusCode, 'red');
@@ -103,9 +103,9 @@ async function setupDemo() {
   log('Password: password123', 'yellow');
   
   log('\n🌐 Application URLs:', 'blue');
-  log('Frontend: http://localhost:3000', 'yellow');
-  log('Backend API: http://localhost:3001', 'yellow');
-  log('Health Check: http://localhost:3001/health', 'yellow');
+  log('Frontend: https://trash2-cash-r4vc.vercel.app/', 'yellow');
+  log('Backend API: https://trash2cash-j8zs.onrender.com', 'yellow');
+  log('Health Check: https://trash2cash-j8zs.onrender.com/health', 'yellow');
   
   log('\n🎯 Demo Features to Show:', 'blue');
   log('1. User Registration/Login', 'yellow');

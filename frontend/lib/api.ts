@@ -1,6 +1,6 @@
 // API Client for Trash2Cash Backend
-// Hardcoded for local development - change this to use deployed backend when ready
-const API_BASE_URL = 'http://localhost:3001';
+// Deployed backend URL
+const API_BASE_URL = 'https://trash2cash-j8zs.onrender.com';
 
 export interface ApiResponse<T = any> {
   status: 'success' | 'error';

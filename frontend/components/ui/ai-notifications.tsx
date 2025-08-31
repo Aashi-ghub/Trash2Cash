@@ -137,7 +137,7 @@ export function AINotifications() {
           throw new Error('No authentication token')
         }
 
-        const response = await fetch('http://localhost:3001/api/ai-notifications', {
+        const response = await fetch('https://trash2cash-j8zs.onrender.com/api/ai-notifications', {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'

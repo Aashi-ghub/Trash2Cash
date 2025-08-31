@@ -4,10 +4,10 @@ export const API_CONFIG = {
   LOCAL: 'http://localhost:3001',
   
   // For deployed backend
-  DEPLOYED: 'https://eco-hive-network.onrender.com',
+  DEPLOYED: 'https://trash2cash-j8zs.onrender.com',
   
   // Current active backend (change this to switch)
-  CURRENT: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3001'
+  CURRENT: process.env.NEXT_PUBLIC_API_BASE_URL || 'https://trash2cash-j8zs.onrender.com'
 };
 
 export const getApiBaseUrl = () => {
