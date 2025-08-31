@@ -218,9 +218,11 @@ export default function HomePage() {
                     </Button>
                   </Link>
                 )}
-                <Button variant="outline" className="border-emerald-950 text-emerald-950 hover:bg-emerald-950 hover:text-white px-8 py-3 rounded-lg text-lg font-semibold font-dosis">
-                  Learn More
-                </Button>
+                <Link href="/learn-more">
+                  <Button variant="outline" className="border-emerald-950 text-emerald-950 hover:bg-emerald-950 hover:text-white px-8 py-3 rounded-lg text-lg font-semibold font-dosis">
+                    Learn More
+                  </Button>
+                </Link>
               </div>
           </div>
 

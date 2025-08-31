@@ -19,7 +19,7 @@ export function ExploreImpactSection() {
           </p>
           <div className="mt-6 flex flex-col sm:flex-row gap-4">
             <a
-              href="/rewards"
+              href="/learn-more"
               className="inline-flex items-center justify-center rounded-full bg-white text-emerald-900 px-6 py-3 hover:bg-emerald-100 transition font-dosis"
             >
               Learn More
