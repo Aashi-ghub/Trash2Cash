@@ -9,16 +9,24 @@ class OllamaAiService {
   }
 
   async checkServices() {
-    // Check Ollama availability
-    try {
-      await ollamaService.checkAvailability();
-      this.serviceStatus.ollama = ollamaService.isAvailable;
-    } catch (error) {
+    // Skip Ollama check in production or when OLLAMA_DISABLED is set
+    if (process.env.NODE_ENV === 'production' || process.env.OLLAMA_DISABLED === 'true') {
       this.serviceStatus.ollama = false;
-    }
+      console.log('🔍 AI Services Status (Production):');
+      console.log('  Ollama: ❌ Disabled (Production mode)');
+      console.log('  Using: ✅ AI Fallback Service');
+    } else {
+      // Check Ollama availability for development
+      try {
+        await ollamaService.checkAvailability();
+        this.serviceStatus.ollama = ollamaService.isAvailable;
+      } catch (error) {
+        this.serviceStatus.ollama = false;
+      }
 
-    console.log('🔍 AI Services Status:');
-    console.log(`  Ollama: ${this.serviceStatus.ollama ? '✅ Available' : '❌ Not Available'}`);
+      console.log('🔍 AI Services Status:');
+      console.log(`  Ollama: ${this.serviceStatus.ollama ? '✅ Available' : '❌ Not Available'}`);
+    }
   }
 
   async getAvailableServices() {

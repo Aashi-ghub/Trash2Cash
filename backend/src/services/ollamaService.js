@@ -4,9 +4,20 @@ class OllamaService {
   constructor() {
     this.baseURL = process.env.OLLAMA_BASE_URL || 'http://localhost:11434';
     this.defaultModel = process.env.OLLAMA_DEFAULT_MODEL || 'llama2:7b';
+    this.apiKey = process.env.OLLAMA_API_KEY;
     this.timeout = 60000; // Longer timeout for local processing
     this.isAvailable = false;
-    this.checkAvailability();
+    
+    // Check if we have cloud Ollama configuration
+    if (this.baseURL.includes('api.ollama.ai') && this.apiKey) {
+      console.log('☁️ Cloud Ollama detected');
+      this.isAvailable = true;
+    } else if (process.env.NODE_ENV === 'production' || process.env.OLLAMA_DISABLED === 'true') {
+      console.log('🚀 Production mode: Using AI fallback service');
+      this.isAvailable = false;
+    } else {
+      this.checkAvailability();
+    }
   }
 
   async checkAvailability() {
@@ -131,6 +142,15 @@ class OllamaService {
       console.log(`🦙 Generating text with model: ${model}`);
       console.log(`📝 Prompt length: ${prompt.length} characters`);
       
+      const headers = {
+        'Content-Type': 'application/json'
+      };
+      
+      // Add API key for cloud Ollama
+      if (this.apiKey) {
+        headers['Authorization'] = `Bearer ${this.apiKey}`;
+      }
+      
       const response = await axios.post(`${this.baseURL}/api/generate`, {
         model: model,
         prompt: prompt,
@@ -142,6 +162,7 @@ class OllamaService {
           num_predict: 1000
         }
       }, {
+        headers,
         timeout: this.timeout
       });
 
