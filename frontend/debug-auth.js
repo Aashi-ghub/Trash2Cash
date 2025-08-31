@@ -47,3 +47,4 @@ if (token) {
 } else {
   console.log('No token found, skipping API test');
 }
+

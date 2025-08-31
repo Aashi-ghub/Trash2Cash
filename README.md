@@ -6,7 +6,7 @@ Transform waste disposal into a rewarding experience with our IoT-powered smart 
 
 ## 🚀 **Live Demo**
 
-- **Frontend**: [https://trash2cash.vercel.app](https://trash2cash.vercel.app)
+- **Frontend**: [https://trash2-cash-r4vc.vercel.app/](https://trash2-cash-r4vc.vercel.app/)
 - **Backend API**: [https://eco-hive-network.onrender.com](https://eco-hive-network.onrender.com)
 - **API Health Check**: [https://eco-hive-network.onrender.com/health](https://eco-hive-network.onrender.com/health)
 

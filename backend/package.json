@@ -2,7 +2,7 @@
   "name": "smart-bin-backend",
   "version": "1.0.0",
   "description": "Smart Bin Backend - Phase 1: Supabase Setup & Initial Schema",
-  "main": "src/server.js",
+  "main": "index.js",
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
