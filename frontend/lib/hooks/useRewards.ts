@@ -106,21 +106,33 @@ export function useRewards() {
     }
 
     try {
+      console.log('🔄 Starting redemption for:', reward.name, 'Cost:', reward.points)
+      
       // Call the backend API to redeem the reward
       const response = await apiClient.redeemReward(reward.name, reward.points)
       
+      console.log('📡 Redemption response:', response)
+      
       if (response.status === 'success') {
+        console.log('✅ Redemption successful, refreshing data...')
+        
         // Refresh the shared user points context
         await refreshUserPoints()
+        
+        // Add a small delay to ensure the backend has processed the redemption
+        await new Promise(resolve => setTimeout(resolve, 500))
+        
         // Refresh redemption history
         await fetchUserRewardsData()
 
+        console.log('✅ Data refresh completed')
         return true
       } else {
+        console.error('❌ Redemption failed:', response)
         throw new Error(response.message || 'Failed to redeem reward')
       }
     } catch (err) {
-      console.error('Error redeeming reward:', err)
+      console.error('❌ Error redeeming reward:', err)
       throw err
     }
   }

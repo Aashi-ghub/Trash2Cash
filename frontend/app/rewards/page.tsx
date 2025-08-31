@@ -116,12 +116,26 @@ export default function RewardsPage() {
 
     setIsRedeeming(true)
     try {
+      console.log('🎯 Attempting to redeem:', reward.name, 'for', reward.points, 'points')
+      
       await redeemReward(reward)
+      
       // Refresh the shared user points context
       await refreshUserPoints()
-      alert(`Successfully redeemed ${reward.name}!`)
+      
+      console.log('✅ Redemption completed successfully')
+      
+      // Show success message
+      alert(`Successfully redeemed ${reward.name}! Your points have been updated.`)
+      
+      // Close the modal
       setSelectedReward(null)
+      
+      // Force a page refresh to ensure all data is updated
+      window.location.reload()
+      
     } catch (err) {
+      console.error('❌ Redemption failed:', err)
       alert(`Failed to redeem reward: ${err instanceof Error ? err.message : 'Unknown error'}`)
     } finally {
       setIsRedeeming(false)

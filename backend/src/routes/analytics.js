@@ -236,7 +236,25 @@ router.post('/rewards/redeem', auth, async (req, res) => {
 
     const supabase = dbConfig.getAdminClient();
 
-    // First, get a valid event_id from the user's recent events
+    // Check if user has enough points
+    const { data: currentRewards, error: rewardsError } = await supabase
+      .from('rewards_ledger')
+      .select('points_earned')
+      .eq('user_id', req.auth.userId);
+
+    if (rewardsError) throw rewardsError;
+
+    const currentPoints = currentRewards ? currentRewards.reduce((sum, r) => sum + (r.points_earned || 0), 0) : 0;
+    
+    if (currentPoints < points_cost) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Insufficient points for redemption'
+      });
+    }
+
+    // Get a recent event for the user (or create a simple redemption event)
+    let eventId = null;
     const { data: recentEvents, error: eventsError } = await supabase
       .from('bin_events')
       .select('id')
@@ -244,49 +262,39 @@ router.post('/rewards/redeem', auth, async (req, res) => {
       .order('created_at', { ascending: false })
       .limit(1);
 
-    if (eventsError) throw eventsError;
-
-    let eventId = null;
-    if (recentEvents && recentEvents.length > 0) {
+    if (!eventsError && recentEvents && recentEvents.length > 0) {
       eventId = recentEvents[0].id;
-    } else {
-      // If no events exist, create a dummy event first
-      const { data: dummyEvent, error: dummyError } = await supabase
-        .from('bin_events')
-        .insert({
-          bin_id: (await supabase.from('bins').select('bin_id').eq('user_id', req.auth.userId).limit(1).single()).data?.bin_id,
-          user_id: req.auth.userId,
-          timestamp_utc: new Date().toISOString(),
-          categories: { plastic: 0, paper: 0, metal: 0, glass: 0, organic: 0 },
-          payload_json: { redemption: true },
-          hv_count: 0,
-          lv_count: 0,
-          org_count: 0,
-          battery_pct: 100,
-          fill_level_pct: 0,
-          weight_kg_total: 0,
-          weight_kg_delta: 0,
-        })
-        .select('id')
-        .single();
-
-      if (dummyError) throw dummyError;
-      eventId = dummyEvent.id;
     }
 
     // Create a negative points entry for redemption
+    const redemptionData = {
+      user_id: req.auth.userId,
+      points_earned: -points_cost, // Negative points for redemption
+      reason: `Redeemed: ${reward_name}`,
+    };
+
+    // Only add event_id if we have one
+    if (eventId) {
+      redemptionData.event_id = eventId;
+    }
+
     const { data: redemption, error } = await supabase
       .from('rewards_ledger')
-      .insert({
-        user_id: req.auth.userId,
-        event_id: eventId,
-        points_earned: -points_cost, // Negative points for redemption
-        reason: `Redeemed: ${reward_name}`,
-      })
+      .insert(redemptionData)
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      console.error('Database error during redemption:', error);
+      throw error;
+    }
+
+    console.log('✅ Redemption successful:', {
+      user_id: req.auth.userId,
+      reward_name,
+      points_cost,
+      redemption_id: redemption.id
+    });
 
     res.json({
       status: 'success',
@@ -294,14 +302,14 @@ router.post('/rewards/redeem', auth, async (req, res) => {
         redemption_id: redemption.id,
         reward_name,
         points_cost,
-        remaining_points: 0, // You could calculate this if needed
+        remaining_points: currentPoints - points_cost,
       }
     });
   } catch (error) {
     console.error('Error redeeming reward:', error);
     res.status(500).json({
       status: 'error',
-      message: 'Failed to redeem reward'
+      message: 'Failed to redeem reward: ' + error.message
     });
   }
 });
