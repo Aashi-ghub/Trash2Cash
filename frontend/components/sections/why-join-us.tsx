@@ -31,8 +31,8 @@ export function WhyJoinUsSection() {
                     playsInline
                     className="w-full h-48 md:h-64 object-cover"
                   >
-                    <source src="/why-join-us-video-placeholder.mp4" type="video/mp4" />
-                    <source src="/Rewarding_Park_Cleanup_Animation.mp4" type="video/mp4" />
+                    
+                    <source src="/Futuristic_Eco_Tech_App_Animation.mp4" type="video/mp4" />
                     Your browser does not support the video tag.
                   </video>
                   {/* Play button overlay */}
