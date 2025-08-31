@@ -1,5 +1,5 @@
 const { pool } = require('../config/database');
-const hybridAiService = require('../services/hybridAiService');
+const ollamaAiService = require('../services/hybridAiService');
 
 /**
  * Fetches events that have not yet been analyzed and generates AI insights for them.
@@ -22,8 +22,8 @@ const generateAndStoreInsights = async () => {
 
     console.log(`Found ${newEvents.length} new events to analyze.`);
 
-    // Process new events with hybrid AI service
-    const analysis = await hybridAiService.analyzeEvents(newEvents);
+    // Process new events with Ollama AI service
+    const analysis = await ollamaAiService.analyzeEvents(newEvents);
 
     if (!analysis || !analysis.insights) {
       throw new Error('Failed to get insights from AI service.');

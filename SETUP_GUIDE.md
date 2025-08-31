@@ -240,3 +240,4 @@ Once you've completed the setup, you should be able to:
 - View mock data that can be replaced with real backend data
 
 The project is now ready for development and testing! 🚀
+

@@ -1,5 +1,5 @@
 const { pool } = require('../config/database');
-const hybridAiService = require('../services/hybridAiService');
+const ollamaAiService = require('../services/hybridAiService');
 
 /**
  * Advanced predictive analytics for waste management optimization
@@ -239,7 +239,7 @@ class PredictiveAnalytics {
    */
   async getAIPredictions(binId, historicalData) {
     try {
-      const aiResponse = await hybridAiService.getPredictiveAnalytics(binId, {
+      const aiResponse = await ollamaAiService.getPredictiveAnalytics(binId, {
         events: historicalData,
         bin_profile: await this.getBinProfile(binId)
       });

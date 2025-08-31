@@ -29,6 +29,7 @@ import {
   IndianRupee,
   Database,
   RefreshCw,
+  Brain,
 } from "lucide-react"
 import { useAuth } from "@/components/auth-provider"
 import { DashboardSkeleton, HostDashboardSkeleton } from "@/components/ui/loading-skeleton"
@@ -87,6 +88,7 @@ export default function RoleBasedDashboard() {
     { icon: Activity, label: "Activity", href: "#activity" },
     { icon: Award, label: "Leaderboard", href: "#leaderboard" },
     { icon: Bell, label: "Notifications", href: "#notifications" },
+    { icon: Brain, label: "AI Analytics", href: "/ai-analytics" },
   ]
 
   const hostSidebarItems = [
@@ -96,6 +98,7 @@ export default function RoleBasedDashboard() {
     { icon: Gift, label: "Rewards Config", href: "#rewards-config" },
     { icon: Users, label: "User Insights", href: "#users" },
     { icon: Settings, label: "System Health", href: "#health" },
+    { icon: Brain, label: "AI Analytics", href: "/ai-analytics" },
   ]
 
   const sidebarItems = currentRole === "user" ? userSidebarItems : hostSidebarItems

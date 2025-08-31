@@ -1,21 +1,14 @@
-const openXaiService = require('./openXaiService');
 const ollamaService = require('./ollamaService');
 
-class HybridAiService {
+class OllamaAiService {
   constructor() {
-    this.preferredService = 'openxai'; // Default preference
-    this.fallbackService = 'ollama';
     this.serviceStatus = {
-      openxai: false,
       ollama: false
     };
     this.checkServices();
   }
 
   async checkServices() {
-    // Check OpenXAI availability
-    this.serviceStatus.openxai = !!process.env.OPENXAI_API_KEY;
-    
     // Check Ollama availability
     try {
       await ollamaService.checkAvailability();
@@ -25,71 +18,38 @@ class HybridAiService {
     }
 
     console.log('🔍 AI Services Status:');
-    console.log(`  OpenXAI: ${this.serviceStatus.openxai ? '✅ Available' : '❌ Not Available'}`);
     console.log(`  Ollama: ${this.serviceStatus.ollama ? '✅ Available' : '❌ Not Available'}`);
   }
 
   async getAvailableServices() {
     await this.checkServices();
     return {
-      openxai: this.serviceStatus.openxai,
       ollama: this.serviceStatus.ollama,
-      preferred: this.preferredService,
-      fallback: this.fallbackService
+      preferred: 'ollama'
     };
   }
 
   async analyzeEvents(events) {
     try {
-      // Try preferred service first (OpenXAI)
-      if (this.serviceStatus.openxai) {
-        console.log('🤖 Using OpenXAI for event analysis...');
-        return await openXaiService.analyzeEvents(events);
-      }
-      
-      // Fallback to Ollama
+      // Use Ollama for event analysis
       if (this.serviceStatus.ollama) {
         console.log('🦙 Using Ollama for event analysis...');
         return await ollamaService.analyzeEvents(events);
       }
       
-      // If neither is available, use mock fallback
-      console.log('⚠️  No AI services available, using mock analysis...');
+      // If Ollama is not available, use mock fallback
+      console.log('⚠️  Ollama not available, using mock analysis...');
       return await this.mockAnalysis(events);
       
     } catch (error) {
-      console.error('Primary AI service failed, trying fallback...');
-      
-      // Try fallback service
-      if (this.preferredService === 'openxai' && this.serviceStatus.ollama) {
-        try {
-          console.log('🦙 Falling back to Ollama...');
-          return await ollamaService.analyzeEvents(events);
-        } catch (fallbackError) {
-          console.error('Fallback service also failed:', fallbackError.message);
-        }
-      } else if (this.preferredService === 'ollama' && this.serviceStatus.openxai) {
-        try {
-          console.log('🤖 Falling back to OpenXAI...');
-          return await openXaiService.analyzeEvents(events);
-        } catch (fallbackError) {
-          console.error('Fallback service also failed:', fallbackError.message);
-        }
-      }
-      
-      // Final fallback to mock
-      console.log('⚠️  All AI services failed, using mock analysis...');
+      console.error('Ollama service failed:', error.message);
+      console.log('⚠️  Using mock analysis as fallback...');
       return await this.mockAnalysis(events);
     }
   }
 
   async analyzeSingleEvent(event) {
     try {
-      if (this.serviceStatus.openxai) {
-        console.log('🤖 Using OpenXAI for single event analysis...');
-        return await openXaiService.analyzeSingleEvent(event);
-      }
-      
       if (this.serviceStatus.ollama) {
         console.log('🦙 Using Ollama for single event analysis...');
         return await ollamaService.analyzeSingleEvent(event);
@@ -98,33 +58,13 @@ class HybridAiService {
       return await this.mockSingleEventAnalysis(event);
       
     } catch (error) {
-      console.error('Primary AI service failed, trying fallback...');
-      
-      if (this.preferredService === 'openxai' && this.serviceStatus.ollama) {
-        try {
-          return await ollamaService.analyzeSingleEvent(event);
-        } catch (fallbackError) {
-          console.error('Fallback service also failed:', fallbackError.message);
-        }
-      } else if (this.preferredService === 'ollama' && this.serviceStatus.openxai) {
-        try {
-          return await openXaiService.analyzeSingleEvent(event);
-        } catch (fallbackError) {
-          console.error('Fallback service also failed:', fallbackError.message);
-        }
-      }
-      
+      console.error('Ollama service failed:', error.message);
       return await this.mockSingleEventAnalysis(event);
     }
   }
 
   async getPredictiveAnalytics(binId, historicalData) {
     try {
-      if (this.serviceStatus.openxai) {
-        console.log('🤖 Using OpenXAI for predictive analytics...');
-        return await openXaiService.getPredictiveAnalytics(binId, historicalData);
-      }
-      
       if (this.serviceStatus.ollama) {
         console.log('🦙 Using Ollama for predictive analytics...');
         return await ollamaService.getPredictiveAnalytics(binId, historicalData);
@@ -133,22 +73,7 @@ class HybridAiService {
       return await this.mockPredictiveAnalytics(binId, historicalData);
       
     } catch (error) {
-      console.error('Primary AI service failed, trying fallback...');
-      
-      if (this.preferredService === 'openxai' && this.serviceStatus.ollama) {
-        try {
-          return await ollamaService.getPredictiveAnalytics(binId, historicalData);
-        } catch (fallbackError) {
-          console.error('Fallback service also failed:', fallbackError.message);
-        }
-      } else if (this.preferredService === 'ollama' && this.serviceStatus.openxai) {
-        try {
-          return await openXaiService.getPredictiveAnalytics(binId, historicalData);
-        } catch (fallbackError) {
-          console.error('Fallback service also failed:', fallbackError.message);
-        }
-      }
-      
+      console.error('Ollama service failed:', error.message);
       return await this.mockPredictiveAnalytics(binId, historicalData);
     }
   }
@@ -160,12 +85,6 @@ class HybridAiService {
         return await ollamaService.chat(message, context);
       }
       
-      if (this.serviceStatus.openxai) {
-        console.log('🤖 Using OpenXAI for chat...');
-        // Note: OpenXAI might not have a direct chat method, so we'll use Ollama or mock
-        return await ollamaService.chat(message, context);
-      }
-      
       return await this.mockChat(message, context);
       
     } catch (error) {
@@ -174,22 +93,11 @@ class HybridAiService {
     }
   }
 
-  async setPreferredService(service) {
-    if (['openxai', 'ollama'].includes(service)) {
-      this.preferredService = service;
-      this.fallbackService = service === 'openxai' ? 'ollama' : 'openxai';
-      console.log(`🔄 Preferred AI service set to: ${service}`);
-      return { success: true, preferred: service, fallback: this.fallbackService };
-    }
-    throw new Error('Invalid service. Must be "openxai" or "ollama"');
-  }
-
   async getServiceStatus() {
     await this.checkServices();
     return {
       services: this.serviceStatus,
-      preferred: this.preferredService,
-      fallback: this.fallbackService,
+      preferred: 'ollama',
       timestamp: new Date().toISOString()
     };
   }
@@ -251,8 +159,8 @@ class HybridAiService {
   }
 
   async mockChat(message, context = '') {
-    return `Mock AI Response: I understand you're asking about "${message}". This is a fallback response when AI services are unavailable. Please check your AI service configuration.`;
+    return `Mock AI Response: I understand you're asking about "${message}". This is a fallback response when Ollama is unavailable. Please check your Ollama configuration.`;
   }
 }
 
-module.exports = new HybridAiService();
+module.exports = new OllamaAiService();

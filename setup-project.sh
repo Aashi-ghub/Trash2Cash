@@ -60,3 +60,4 @@ echo "Backend API is deployed at: $BACKEND_URL"
 echo "Health check: $BACKEND_URL/health"
 echo ""
 echo "📚 For more information, see SETUP_GUIDE.md"
+

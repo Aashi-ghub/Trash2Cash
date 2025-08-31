@@ -1,5 +1,5 @@
 const { pool } = require('../config/database');
-const hybridAiService = require('../services/hybridAiService');
+const ollamaAiService = require('../services/hybridAiService');
 
 /**
  * Enhanced anomaly detection with advanced algorithms
@@ -130,7 +130,7 @@ class EnhancedAnomalyDetection {
 
     try {
       // Get AI analysis for recent events
-      const aiResponse = await hybridAiService.analyzeEvents(events);
+      const aiResponse = await ollamaAiService.analyzeEvents(events);
       
       if (aiResponse.status === 'success' && aiResponse.data.insights) {
         aiResponse.data.insights.forEach(insight => {

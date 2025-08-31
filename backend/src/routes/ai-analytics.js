@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const authenticateToken = require('../middleware/auth');
-const hybridAiService = require('../services/hybridAiService');
+const ollamaAiService = require('../services/hybridAiService');
 const enhancedAnomalyDetection = require('../analytics/enhancedAnomalies');
 const predictiveAnalytics = require('../analytics/predictiveAnalytics');
 const { pool } = require('../config/database');
@@ -15,12 +15,12 @@ router.get('/health', authenticateToken, async (req, res) => {
   try {
     const healthStatus = {
       timestamp: new Date().toISOString(),
-      services: {
-        openxai: {
-          status: 'operational',
-          api_key_configured: !!process.env.OPENXAI_API_KEY,
-          fallback_mode: !process.env.OPENXAI_API_KEY
-        },
+             services: {
+         ollama: {
+           status: 'operational',
+           base_url: process.env.OLLAMA_BASE_URL || 'http://localhost:11434',
+           default_model: process.env.OLLAMA_DEFAULT_MODEL || 'llama3'
+         },
         anomaly_detection: {
           status: 'operational',
           algorithms: [
@@ -78,9 +78,9 @@ router.post('/analyze-events', authenticateToken, async (req, res) => {
       });
     }
 
-    console.log(`🔍 Analyzing ${events.length} events with OpenXAI...`);
+    console.log(`🔍 Analyzing ${events.length} events with Ollama...`);
     
-    const analysisResult = await hybridAiService.analyzeEvents(events);
+    const analysisResult = await ollamaAiService.analyzeEvents(events);
 
     res.json({
       status: 'success',
@@ -522,7 +522,7 @@ router.post('/ollama/pull-model', authenticateToken, async (req, res) => {
 
 router.get('/ai-services/status', authenticateToken, async (req, res) => {
   try {
-    const status = await hybridAiService.getServiceStatus();
+    const status = await ollamaAiService.getServiceStatus();
     
     res.json({
       success: true,
@@ -538,11 +538,11 @@ router.post('/ai-services/preferred', authenticateToken, async (req, res) => {
   try {
     const { service } = req.body;
     
-    if (!service || !['openxai', 'ollama'].includes(service)) {
-      return res.status(400).json({ success: false, error: 'Service must be "openxai" or "ollama"' });
+    if (!service || service !== 'ollama') {
+      return res.status(400).json({ success: false, error: 'Only "ollama" service is supported' });
     }
 
-    const result = await hybridAiService.setPreferredService(service);
+    const result = { success: true, preferred: 'ollama' };
     
     res.json({
       success: true,
