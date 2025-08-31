@@ -48,7 +48,7 @@ const cards: Card[] = [
 
 export function WhyChooseSection() {
   return (
-    <section className="w-full bg-emerald-950 text-white py-16 md:py-24 font-dosis">
+    <section id="why-choose" className="w-full bg-emerald-950 text-white py-16 md:py-24 font-dosis">
       <div className="mx-auto max-w-6xl px-4 md:px-6">
         <header className="mb-10 md:mb-14 text-center">
           <h2 className="text-pretty text-3xl md:text-4xl font-semibold font-bungee">Why Choose Trash2Cash</h2>

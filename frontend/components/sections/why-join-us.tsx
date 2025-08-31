@@ -2,7 +2,7 @@
 
 export function WhyJoinUsSection() {
   return (
-    <section className="w-full bg-white py-12 md:py-20 pb-8 md:pb-8 font-dosis">
+    <section id="why-join-us" className="w-full bg-white py-12 md:py-20 pb-8 md:pb-8 font-dosis">
       <div className="mx-auto w-full max-w-6xl px-4 md:px-6">
         {/* Green top section (1/4th) with rounded borders */}
         <div className="relative overflow-hidden rounded-[36px] bg-emerald-900 text-white h-64 md:h-96">

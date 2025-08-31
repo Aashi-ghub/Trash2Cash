@@ -2,7 +2,7 @@ import Link from "next/link"
 
 export function GetInvolvedSection() {
   return (
-    <footer className="w-full bg-emerald-950 text-white pt-16 md:pt-24 font-dosis">
+    <footer id="footer" className="w-full bg-emerald-950 text-white pt-16 md:pt-24 font-dosis">
       <div className="mx-auto max-w-6xl px-4 md:px-6">
         <div className="text-center mb-10 md:mb-14">
           <h2 className="text-pretty text-3xl md:text-4xl font-semibold font-bungee">Get Involved</h2>

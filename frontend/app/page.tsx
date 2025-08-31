@@ -67,19 +67,19 @@ export default function HomePage() {
               </div>
               <span className="font-bold text-xl text-white">Trash2Cash</span>
             </Link>
-            <div className="hidden md:flex items-center gap-6 font-dosis">
-              <Link href="/" className="text-white hover:text-green-300 font-medium font-dosis">
-                Home
-              </Link>
-              <Link href="/about" className="text-white hover:text-green-300 font-medium font-dosis">
-                About
-              </Link>
-              <Link href="/features" className="text-white hover:text-green-300 font-medium font-dosis">
-                Features
-              </Link>
-              <Link href="/contact" className="text-white hover:text-green-300 font-medium font-dosis">
-                Contact
-              </Link>
+                          <div className="hidden md:flex items-center gap-6 font-dosis">
+                <Link href="#hero" className="text-white hover:text-green-300 font-medium font-dosis">
+                  Home
+                </Link>
+                <Link href="#why-join-us" className="text-white hover:text-green-300 font-medium font-dosis">
+                  About
+                </Link>
+                <Link href="#why-choose" className="text-white hover:text-green-300 font-medium font-dosis">
+                  Features
+                </Link>
+                <Link href="#footer" className="text-white hover:text-green-300 font-medium font-dosis">
+                  Contact
+                </Link>
               {user ? (
                 <>
                   <Link href="/dashboard" className="text-white hover:text-green-300 font-medium font-dosis">
@@ -97,7 +97,7 @@ export default function HomePage() {
                   </Button>
                 </>
               ) : (
-                <Link href="/signup">
+                <Link href="/login">
                   <Button className="bg-white hover:bg-gray-100 text-gray-800 px-6 py-2 rounded-full font-medium font-dosis">
                     Join Now
                   </Button>
@@ -132,16 +132,16 @@ export default function HomePage() {
                   }}
                 >
                                 <div className="px-2 pt-2 pb-3 space-y-1 font-dosis">
-                  <Link href="/" className="block px-3 py-2 text-white hover:text-green-300 font-medium font-dosis">
+                  <Link href="#hero" className="block px-3 py-2 text-white hover:text-green-300 font-medium font-dosis">
                     Home
                   </Link>
-                  <Link href="/about" className="block px-3 py-2 text-white hover:text-green-300 font-medium font-dosis">
+                  <Link href="#why-join-us" className="block px-3 py-2 text-white hover:text-green-300 font-medium font-dosis">
                     About
                   </Link>
-                  <Link href="/features" className="block px-3 py-2 text-white hover:text-green-300 font-medium font-dosis">
+                  <Link href="#why-choose" className="block px-3 py-2 text-white hover:text-green-300 font-medium font-dosis">
                     Features
                   </Link>
-                  <Link href="/contact" className="block px-3 py-2 text-white hover:text-green-300 font-medium font-dosis">
+                  <Link href="#footer" className="block px-3 py-2 text-white hover:text-green-300 font-medium font-dosis">
                     Contact
                   </Link>
                   {user ? (
@@ -161,7 +161,7 @@ export default function HomePage() {
                       </Button>
                     </>
                   ) : (
-                    <Link href="/signup" className="block px-3 py-2">
+                    <Link href="/login" className="block px-3 py-2">
                       <Button className="w-full bg-white hover:bg-gray-100 text-gray-800 px-6 py-2 rounded-full font-medium font-dosis">
                         Join Now
                       </Button>
@@ -174,7 +174,7 @@ export default function HomePage() {
         </nav>
 
         {/* Hero Section */}
-        <div className="relative min-h-screen flex items-start justify-start overflow-hidden">
+        <div id="hero" className="relative min-h-screen flex items-start justify-start overflow-hidden">
           {/* Background Video */}
           <div className="absolute inset-0">
             <video 
@@ -204,14 +204,24 @@ export default function HomePage() {
             <p className="text-lg md:text-xl mb-8 font-dosis" style={{ color: '#455b5' }}>
               Welcome to our platform that gamifies eco-friendly actions
             </p>
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Button className="bg-emerald-950 hover:bg-emerald-900 text-white px-8 py-3 rounded-lg text-lg font-semibold font-dosis">
-                Start Your Journey
-              </Button>
-              <Button variant="outline" className="border-emerald-950 text-emerald-950 hover:bg-emerald-950 hover:text-white px-8 py-3 rounded-lg text-lg font-semibold font-dosis">
-                Learn More
-              </Button>
-            </div>
+                          <div className="flex flex-col sm:flex-row gap-4">
+                {user ? (
+                  <Link href="/dashboard">
+                    <Button className="bg-emerald-950 hover:bg-emerald-900 text-white px-8 py-3 rounded-lg text-lg font-semibold font-dosis">
+                      Go to Dashboard
+                    </Button>
+                  </Link>
+                ) : (
+                  <Link href="/signup">
+                    <Button className="bg-emerald-950 hover:bg-emerald-900 text-white px-8 py-3 rounded-lg text-lg font-semibold font-dosis">
+                      Start Your Journey
+                    </Button>
+                  </Link>
+                )}
+                <Button variant="outline" className="border-emerald-950 text-emerald-950 hover:bg-emerald-950 hover:text-white px-8 py-3 rounded-lg text-lg font-semibold font-dosis">
+                  Learn More
+                </Button>
+              </div>
           </div>
 
           
