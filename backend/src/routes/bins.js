@@ -9,7 +9,7 @@ const router = express.Router();
 // Validation schemas
 const binSchema = Joi.object({
   bin_code: Joi.string().max(50).required(),
-  owner_user_id: Joi.string().uuid().required(),
+  user_id: Joi.string().uuid().required(),
   location: Joi.string()
 });
 
@@ -18,7 +18,7 @@ const updateBinSchema = Joi.object({
 });
 
 const assignBinSchema = Joi.object({
-  owner_user_id: Joi.string().uuid().required()
+  user_id: Joi.string().uuid().required()
 });
 
 // Get all bins (admin/operator only)
@@ -62,7 +62,7 @@ router.get('/:binId', async (req, res) => {
     const { data, error } = await adminClient
       .from('bins')
       .select('*')
-      .eq('id', binId)
+      .eq('bin_id', binId)
       .single();
 
     if (error) {
@@ -102,7 +102,7 @@ router.get('/user/:userId', async (req, res) => {
     const { data, error } = await adminClient
       .from('bins')
       .select('*')
-      .eq('owner_user_id', userId)
+      .eq('user_id', userId)
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -172,7 +172,7 @@ router.post('/', async (req, res) => {
     try {
       await dbConfig.getAdminClient()
         .from('audit_logs')
-        .insert([{ action: 'bin_create', entity: 'bin', entity_id: data.id, details: { bin_code: data.bin_code, owner_user_id: data.owner_user_id } }]);
+        .insert([{ action: 'bin_create', entity: 'bin', entity_id: data.bin_id, details: { bin_code: data.bin_code, user_id: data.user_id } }]);
     } catch {}
     logger.info(`Bin created successfully: ${data.id}`);
     res.status(201).json({
@@ -206,7 +206,7 @@ router.put('/:binId', async (req, res) => {
     const { data, error: updateError } = await adminClient
       .from('bins')
       .update(value)
-      .eq('id', binId)
+      .eq('bin_id', binId)
       .select('*')
       .single();
 
@@ -239,7 +239,7 @@ router.put('/:binId', async (req, res) => {
   }
 });
 
-// Assign/Reassign a bin to a host (owner_user_id)
+// Assign/Reassign a bin to a host (user_id)
 router.post('/:binId/assign', async (req, res) => {
   try {
     const { binId } = req.params;
@@ -257,8 +257,8 @@ router.post('/:binId/assign', async (req, res) => {
     // Ensure bin exists
     const { data: existing, error: fetchErr } = await adminClient
       .from('bins')
-      .select('id')
-      .eq('id', binId)
+      .select('bin_id')
+      .eq('bin_id', binId)
       .single();
     if (fetchErr) {
       return res.status(404).json({ status: 'error', message: 'Bin not found' });
@@ -266,8 +266,8 @@ router.post('/:binId/assign', async (req, res) => {
 
     const { data, error: updateError } = await adminClient
       .from('bins')
-      .update({ owner_user_id: value.owner_user_id })
-      .eq('id', binId)
+      .update({ user_id: value.user_id })
+      .eq('bin_id', binId)
       .select('*')
       .single();
 
@@ -283,9 +283,9 @@ router.post('/:binId/assign', async (req, res) => {
     try {
       await adminClient
         .from('audit_logs')
-        .insert([{ action: 'bin_assign', entity: 'bin', entity_id: binId, details: { owner_user_id: value.owner_user_id } }]);
+        .insert([{ action: 'bin_assign', entity: 'bin', entity_id: binId, details: { user_id: value.user_id } }]);
     } catch {}
-    logger.info(`Bin ${binId} assigned to ${value.owner_user_id}`);
+    logger.info(`Bin ${binId} assigned to ${value.user_id}`);
     return res.json({ status: 'success', data });
   } catch (error) {
     logger.error('Unexpected error in POST /bins/:binId/assign:', error);
@@ -302,7 +302,7 @@ router.delete('/:binId', async (req, res) => {
     const { error } = await adminClient
       .from('bins')
       .delete()
-      .eq('id', binId);
+      .eq('bin_id', binId);
 
     if (error) {
       logger.error('Error deleting bin:', error);

@@ -72,10 +72,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (token && savedUser) {
           // We have both token and user, try to refresh
           setUser(savedUser)
-          await refreshUser()
+          try {
+            await refreshUser()
+          } catch (error) {
+            console.error("Failed to refresh user, clearing auth:", error)
+            // If refresh fails, clear auth but don't get stuck
+            tokenUtils.clearAuth()
+            setUser(null)
+          }
         } else if (token) {
           // Only token, try to get user from backend
-          await refreshUser()
+          try {
+            await refreshUser()
+          } catch (error) {
+            console.error("Failed to get user with token, clearing auth:", error)
+            // If getting user fails, clear auth but don't get stuck
+            tokenUtils.clearAuth()
+            setUser(null)
+          }
         } else {
           // No saved data, user is not logged in
           setUser(null)

@@ -12,10 +12,14 @@ import ExploreImpactSection from "@/components/sections/explore-impact"
 import GetInvolvedSection from "@/components/sections/get-involved"
 import ClientEcoHero from "@/components/client-eco-hero"
 import HomeLayout from "./home-layout"
+import { useAuth } from "@/components/auth-provider"
+import RoleBasedDashboard from "@/components/role-based-dashboard"
 
 export default function HomePage() {
+  const { user, isLoading } = useAuth()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
+  const [authError, setAuthError] = useState(false)
 
   useEffect(() => {
     const handleScroll = () => {
@@ -26,6 +30,21 @@ export default function HomePage() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
+  // Show loading state while checking authentication
+  if (isLoading) {
+    return (
+      <HomeLayout>
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-950 mx-auto mb-4"></div>
+            <p className="text-emerald-950">Loading...</p>
+          </div>
+        </div>
+      </HomeLayout>
+    )
+  }
+
+  // Show the landing page for all users (including logged-in users)
   return (
     <HomeLayout>
       <div className="min-h-screen">
@@ -61,122 +80,158 @@ export default function HomePage() {
               <Link href="/contact" className="text-white hover:text-green-300 font-medium font-dosis">
                 Contact
               </Link>
-              <Link href="/signup">
-                <Button className="bg-white hover:bg-gray-100 text-gray-800 px-6 py-2 rounded-full font-medium font-dosis">
-                  Join Now
-                </Button>
-              </Link>
-            </div>
-            
-            {/* Mobile menu button */}
-            <div className="md:hidden">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="text-white"
-              >
-                {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-              </Button>
-            </div>
-          </div>
-          
-                      {/* Mobile menu */}
-            {mobileMenuOpen && (
-              <div 
-                className={`md:hidden border-t transition-all duration-300 ${
-                  isScrolled 
-                    ? 'border-white/20 rounded-b-full' 
-                    : 'border-white/10'
-                }`}
-                style={{
-                  backgroundColor: isScrolled ? 'rgba(255, 255, 255, 0.1)' : 'transparent',
-                  backdropFilter: isScrolled ? 'blur(12px)' : 'none'
-                }}
-              >
-                              <div className="px-2 pt-2 pb-3 space-y-1 font-dosis">
-                <Link href="/" className="block px-3 py-2 text-white hover:text-green-300 font-medium font-dosis">
-                  Home
-                </Link>
-                <Link href="/about" className="block px-3 py-2 text-white hover:text-green-300 font-medium font-dosis">
-                  About
-                </Link>
-                <Link href="/features" className="block px-3 py-2 text-white hover:text-green-300 font-medium font-dosis">
-                  Features
-                </Link>
-                <Link href="/contact" className="block px-3 py-2 text-white hover:text-green-300 font-medium font-dosis">
-                  Contact
-                </Link>
-                <Link href="/signup" className="block px-3 py-2">
-                  <Button className="w-full bg-white hover:bg-gray-100 text-gray-800 px-6 py-2 rounded-full font-medium font-dosis">
+              {user ? (
+                <>
+                  <Link href="/dashboard" className="text-white hover:text-green-300 font-medium font-dosis">
+                    Dashboard
+                  </Link>
+                  <Button 
+                    onClick={() => {
+                      localStorage.removeItem('trash2cash_token')
+                      localStorage.removeItem('trash2cash_user')
+                      window.location.href = '/'
+                    }}
+                    className="bg-white hover:bg-gray-100 text-gray-800 px-6 py-2 rounded-full font-medium font-dosis"
+                  >
+                    Logout
+                  </Button>
+                </>
+              ) : (
+                <Link href="/signup">
+                  <Button className="bg-white hover:bg-gray-100 text-gray-800 px-6 py-2 rounded-full font-medium font-dosis">
                     Join Now
                   </Button>
                 </Link>
+              )}
+            </div>
+              
+              {/* Mobile menu button */}
+              <div className="md:hidden">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                  className="text-white"
+                >
+                  {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+                </Button>
               </div>
             </div>
-          )}
-        </div>
-      </nav>
-
-      {/* Hero Section */}
-      <div className="relative min-h-screen flex items-start justify-start overflow-hidden">
-        {/* Background Video */}
-        <div className="absolute inset-0">
-          <video 
-            autoPlay 
-            loop 
-            muted 
-            playsInline
-            className="w-full h-full object-cover"
-            style={{ filter: 'brightness(0.7)' }}
-            ref={(el) => {
-              if (el) el.playbackRate = 1;
-            }}
-          >
-            <source src="/Waste_to_Reward_Animation_Generated.mp4" type="video/mp4" />
-            Your browser does not support the video tag.
-          </video>
-        </div>
-
-        {/* Hero Content - Left Aligned */}
-        <div className="relative z-10 text-left text-white px-16 pt-32 max-w-2xl font-dosis">
-          <h1 className="text-xl md:text-xl font-bold mb-4 font-dosis" style={{ color: '#ACE1AF' }}>
-            Eco-Friendly Adventures
-          </h1>
-          <h2 className="text-4xl md:text-5xl  mb-6 font-bungee" >
-            Discover Your Sustainable
-          </h2>
-          <p className="text-lg md:text-xl mb-8 font-dosis" style={{ color: '#455b5' }}>
-            Welcome to our platform that gamifies eco-friendly actions
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4">
-            <Button className="bg-emerald-950 hover:bg-emerald-900 text-white px-8 py-3 rounded-lg text-lg font-semibold font-dosis">
-              Start Your Journey
-            </Button>
-            <Button variant="outline" className="border-emerald-950 text-emerald-950 hover:bg-emerald-950 hover:text-white px-8 py-3 rounded-lg text-lg font-semibold font-dosis">
-              Learn More
-            </Button>
+            
+                        {/* Mobile menu */}
+              {mobileMenuOpen && (
+                <div 
+                  className={`md:hidden border-t transition-all duration-300 ${
+                    isScrolled 
+                      ? 'border-white/20 rounded-b-full' 
+                      : 'border-white/10'
+                  }`}
+                  style={{
+                    backgroundColor: isScrolled ? 'rgba(255, 255, 255, 0.1)' : 'transparent',
+                    backdropFilter: isScrolled ? 'blur(12px)' : 'none'
+                  }}
+                >
+                                <div className="px-2 pt-2 pb-3 space-y-1 font-dosis">
+                  <Link href="/" className="block px-3 py-2 text-white hover:text-green-300 font-medium font-dosis">
+                    Home
+                  </Link>
+                  <Link href="/about" className="block px-3 py-2 text-white hover:text-green-300 font-medium font-dosis">
+                    About
+                  </Link>
+                  <Link href="/features" className="block px-3 py-2 text-white hover:text-green-300 font-medium font-dosis">
+                    Features
+                  </Link>
+                  <Link href="/contact" className="block px-3 py-2 text-white hover:text-green-300 font-medium font-dosis">
+                    Contact
+                  </Link>
+                  {user ? (
+                    <>
+                      <Link href="/dashboard" className="block px-3 py-2 text-white hover:text-green-300 font-medium font-dosis">
+                        Dashboard
+                      </Link>
+                      <Button 
+                        onClick={() => {
+                          localStorage.removeItem('trash2cash_token')
+                          localStorage.removeItem('trash2cash_user')
+                          window.location.href = '/'
+                        }}
+                        className="w-full bg-white hover:bg-gray-100 text-gray-800 px-6 py-2 rounded-full font-medium font-dosis"
+                      >
+                        Logout
+                      </Button>
+                    </>
+                  ) : (
+                    <Link href="/signup" className="block px-3 py-2">
+                      <Button className="w-full bg-white hover:bg-gray-100 text-gray-800 px-6 py-2 rounded-full font-medium font-dosis">
+                        Join Now
+                      </Button>
+                    </Link>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
+        </nav>
+
+        {/* Hero Section */}
+        <div className="relative min-h-screen flex items-start justify-start overflow-hidden">
+          {/* Background Video */}
+          <div className="absolute inset-0">
+            <video 
+              autoPlay 
+              loop 
+              muted 
+              playsInline
+              className="w-full h-full object-cover"
+              style={{ filter: 'brightness(0.7)' }}
+              ref={(el) => {
+                if (el) el.playbackRate = 1;
+              }}
+            >
+              <source src="/Waste_to_Reward_Animation_Generated.mp4" type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+          </div>
+
+          {/* Hero Content - Left Aligned */}
+          <div className="relative z-10 text-left text-white px-16 pt-32 max-w-2xl font-dosis">
+            <h1 className="text-xl md:text-xl font-bold mb-4 font-dosis" style={{ color: '#ACE1AF' }}>
+              Eco-Friendly Adventures
+            </h1>
+            <h2 className="text-4xl md:text-5xl  mb-6 font-bungee" >
+              Discover Your Sustainable
+            </h2>
+            <p className="text-lg md:text-xl mb-8 font-dosis" style={{ color: '#455b5' }}>
+              Welcome to our platform that gamifies eco-friendly actions
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Button className="bg-emerald-950 hover:bg-emerald-900 text-white px-8 py-3 rounded-lg text-lg font-semibold font-dosis">
+                Start Your Journey
+              </Button>
+              <Button variant="outline" className="border-emerald-950 text-emerald-950 hover:bg-emerald-950 hover:text-white px-8 py-3 rounded-lg text-lg font-semibold font-dosis">
+                Learn More
+              </Button>
+            </div>
+          </div>
+
+          
         </div>
 
-        
-      </div>
+        {/* About Our Mission (Why Choose Trash2Cash) */}
+        <WhyChooseSection />
 
-      {/* About Our Mission (Why Choose Trash2Cash) */}
-      <WhyChooseSection />
+        {/* Why Join Us */}
+        <WhyJoinUsSection />
 
-      {/* Why Join Us */}
-      <WhyJoinUsSection />
+        {/* Unlock Your Sustainable Potential */}
+        <UnlockPotentialSection />
 
-      {/* Unlock Your Sustainable Potential */}
-      <UnlockPotentialSection />
+        {/* Explore Our Impact */}
+        <ExploreImpactSection />
 
-      {/* Explore Our Impact */}
-      <ExploreImpactSection />
-
-      {/* Get Involved Footer */}
-      <GetInvolvedSection />
-      </div>
-    </HomeLayout>
-  )
+        {/* Get Involved Footer */}
+        <GetInvolvedSection />
+        </div>
+      </HomeLayout>
+    )
 }
