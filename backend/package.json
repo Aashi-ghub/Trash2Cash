@@ -6,13 +6,17 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
+    "build": "echo 'Backend is ready for production'",
     "test": "echo \"Error: no test specified\" && exit 1",
     "seed:mock": "node scripts/seed-mock-data.js",
     "setup-db": "node scripts/setup-database.js",
     "apply-schema": "node scripts/apply-schema.js",
     "apply-views": "node scripts/apply-views.js",
     "seed-data": "node scripts/seed-data.js",
-    "fetch-data": "node scripts/fetch-data.js"
+    "fetch-data": "node scripts/fetch-data.js",
+    "test:auth": "node test-auth.js",
+    "test:analytics": "node test-analytics.js",
+    "test:integration": "node test-dashboard-integration.js"
   },
   "keywords": [
     "smart-bin",

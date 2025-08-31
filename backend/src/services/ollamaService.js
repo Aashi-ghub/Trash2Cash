@@ -27,7 +27,7 @@ class OllamaService {
 
   // Simple AI fallback for MVP when Ollama is not available
   generateSimpleAnalysis(events, analysisType = 'events') {
-    console.log('🤖 Using simple AI fallback for MVP');
+    // Using simple AI fallback for MVP
     
     if (analysisType === 'events') {
       const totalEvents = events.length;
