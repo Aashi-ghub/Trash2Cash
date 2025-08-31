@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -29,13 +29,15 @@ import {
   IndianRupee,
   Database,
   RefreshCw,
-  Brain,
+  User,
+  LogOut,
 } from "lucide-react"
 import { useAuth } from "@/components/auth-provider"
 import { DashboardSkeleton, HostDashboardSkeleton } from "@/components/ui/loading-skeleton"
 import { useUserDashboardData, useHostDashboardData } from "@/lib/hooks/useDashboardData"
 import { useUserPoints } from "@/lib/contexts/UserPointsContext"
 import { SmartBinMap } from "@/components/ui/smart-bin-map"
+import { AINotifications } from "@/components/ui/ai-notifications"
 import Link from "next/link"
 
 type DashboardRole = "user" | "host"
@@ -66,20 +68,52 @@ export default function RoleBasedDashboard() {
   const [currentRole, setCurrentRole] = useState<DashboardRole>("user")
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [roleDropdownOpen, setRoleDropdownOpen] = useState(false)
+  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false)
+  const profileDropdownRef = useRef<HTMLDivElement>(null)
+  const roleDropdownRef = useRef<HTMLDivElement>(null)
 
-  // Persist role in localStorage
+  // Persist role in localStorage and sync with user's actual role
   useEffect(() => {
     const savedRole = localStorage.getItem("dashboardRole") as DashboardRole
-    if (savedRole) {
+    const userRole = user?.role as DashboardRole
+    
+    // If user has a role, use that; otherwise use saved role
+    if (userRole && ["user", "host"].includes(userRole)) {
+      setCurrentRole(userRole)
+      localStorage.setItem("dashboardRole", userRole)
+    } else if (savedRole && ["user", "host"].includes(savedRole)) {
       setCurrentRole(savedRole)
     }
-  }, [])
+  }, [user])
 
   const handleRoleSwitch = (role: DashboardRole) => {
     setCurrentRole(role)
     localStorage.setItem("dashboardRole", role)
     setRoleDropdownOpen(false)
   }
+
+  const handleLogout = () => {
+    localStorage.removeItem('trash2cash_token')
+    localStorage.removeItem('trash2cash_user')
+    window.location.href = '/login'
+  }
+
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (profileDropdownRef.current && !profileDropdownRef.current.contains(event.target as Node)) {
+        setProfileDropdownOpen(false)
+      }
+      if (roleDropdownRef.current && !roleDropdownRef.current.contains(event.target as Node)) {
+        setRoleDropdownOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [])
 
   const userSidebarItems = [
     { icon: BarChart3, label: "Overview", href: "#overview" },
@@ -88,7 +122,6 @@ export default function RoleBasedDashboard() {
     { icon: Activity, label: "Activity", href: "#activity" },
     { icon: Award, label: "Leaderboard", href: "#leaderboard" },
     { icon: Bell, label: "Notifications", href: "#notifications" },
-    { icon: Brain, label: "AI Analytics", href: "/ai-analytics" },
   ]
 
   const hostSidebarItems = [
@@ -98,7 +131,6 @@ export default function RoleBasedDashboard() {
     { icon: Gift, label: "Rewards Config", href: "#rewards-config" },
     { icon: Users, label: "User Insights", href: "#users" },
     { icon: Settings, label: "System Health", href: "#health" },
-    { icon: Brain, label: "AI Analytics", href: "/ai-analytics" },
   ]
 
   const sidebarItems = currentRole === "user" ? userSidebarItems : hostSidebarItems
@@ -137,7 +169,7 @@ export default function RoleBasedDashboard() {
             )}
 
             {/* Role Switcher */}
-            <div className="relative">
+            <div className="relative" ref={roleDropdownRef}>
               <Button
                 variant="outline"
                 size="sm"
@@ -177,10 +209,65 @@ export default function RoleBasedDashboard() {
               </AnimatePresence>
             </div>
 
-            <Button variant="outline" size="sm">
-              <Settings className="w-4 h-4 mr-2" />
-              Settings
-            </Button>
+            {/* User Profile Dropdown */}
+            <div className="relative" ref={profileDropdownRef}>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+                className="flex items-center gap-2 px-2"
+              >
+                <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+                  <User className="w-4 h-4 text-primary-foreground" />
+                </div>
+                <span className="hidden sm:block font-medium">
+                  {user?.display_name || user?.username || 'User'}
+                </span>
+                <ChevronDown className="w-4 h-4" />
+              </Button>
+
+              <AnimatePresence>
+                {profileDropdownOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="absolute right-0 mt-2 w-56 bg-card border rounded-lg shadow-lg z-50"
+                  >
+                    <div className="p-4 border-b">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
+                          <User className="w-5 h-5 text-primary-foreground" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-sm">
+                            {user?.display_name || user?.username || 'User'}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {user?.email || 'No email'}
+                          </p>
+                          <p className="text-xs text-muted-foreground capitalize">
+                            {user?.role || 'user'}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="p-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
+                        onClick={handleLogout}
+                      >
+                        <LogOut className="w-4 h-4 mr-2" />
+                        Logout
+                      </Button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
         </div>
       </header>
@@ -370,8 +457,44 @@ function UserDashboard() {
         </motion.div>
       </div>
 
+      {/* AI Assistant Card */}
+      <Card className="border-border/50">
+        <CardHeader>
+          <CardTitle className="font-serif flex items-center gap-2">
+            <Activity className="w-5 h-5 text-primary" />
+            AI Assistant
+          </CardTitle>
+          <CardDescription>Get personalized recycling tips and insights</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="p-4 bg-primary/5 rounded-lg">
+              <p className="text-sm font-medium text-primary">💡 Smart Tip</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                Based on your recycling pattern, try visiting bins during off-peak hours (2-4 PM) for faster processing.
+              </p>
+            </div>
+            <div className="p-4 bg-secondary/5 rounded-lg">
+              <p className="text-sm font-medium text-secondary">🎯 Goal Progress</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                You're 75% to your next rank! Recycle 3 more items to reach "Eco Champion" status.
+              </p>
+            </div>
+            <div className="p-4 bg-accent/5 rounded-lg">
+              <p className="text-sm font-medium text-accent">🌱 Environmental Impact</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                Your recycling has saved {userPoints?.co2Saved || 0}kg of CO₂ - equivalent to planting {Math.floor((userPoints?.co2Saved || 0) / 2)} trees!
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Main Content Grid */}
       <div className="grid lg:grid-cols-2 gap-6">
+        {/* AI Notifications */}
+        <AINotifications />
+
         {/* Nearby Bins Map */}
         <SmartBinMap showDetails={false} />
 
@@ -558,6 +681,72 @@ function HostDashboard() {
           </Card>
         </motion.div>
       </div>
+
+      {/* AI Insights Section */}
+      <Card className="border-border/50">
+        <CardHeader>
+          <CardTitle className="font-serif flex items-center gap-2">
+            <Activity className="w-5 h-5 text-primary" />
+            AI Insights
+          </CardTitle>
+          <CardDescription>Smart analysis of your bin operations</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid md:grid-cols-2 gap-6">
+            {/* Performance Insights */}
+            <div className="space-y-4">
+              <h4 className="font-medium text-foreground">Performance Analysis</h4>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between p-3 bg-primary/5 rounded-lg">
+                  <div>
+                    <p className="font-medium text-sm">Fill Level Trend</p>
+                    <p className="text-xs text-muted-foreground">Based on recent data</p>
+                  </div>
+                  <Badge variant={stats.avgFillLevel > 70 ? "destructive" : stats.avgFillLevel > 50 ? "default" : "secondary"}>
+                    {stats.avgFillLevel > 70 ? "High" : stats.avgFillLevel > 50 ? "Normal" : "Low"}
+                  </Badge>
+                </div>
+                <div className="flex items-center justify-between p-3 bg-secondary/5 rounded-lg">
+                  <div>
+                    <p className="font-medium text-sm">Collection Efficiency</p>
+                    <p className="text-xs text-muted-foreground">Optimization score</p>
+                  </div>
+                  <Badge variant="outline">85%</Badge>
+                </div>
+                <div className="flex items-center justify-between p-3 bg-accent/5 rounded-lg">
+                  <div>
+                    <p className="font-medium text-sm">Revenue Trend</p>
+                    <p className="text-xs text-muted-foreground">Monthly projection</p>
+                  </div>
+                  <Badge variant="outline" className="text-green-600">+12%</Badge>
+                </div>
+              </div>
+            </div>
+
+            {/* Smart Recommendations */}
+            <div className="space-y-4">
+              <h4 className="font-medium text-foreground">Smart Recommendations</h4>
+              <div className="space-y-3">
+                <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                  <p className="font-medium text-sm text-blue-800">Optimize Collection Schedule</p>
+                  <p className="text-xs text-blue-600 mt-1">Consider daily collection for high-traffic bins</p>
+                </div>
+                <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+                  <p className="font-medium text-sm text-green-800">Maintenance Alert</p>
+                  <p className="text-xs text-green-600 mt-1">Schedule sensor calibration for BIN003</p>
+                </div>
+                <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                  <p className="font-medium text-sm text-yellow-800">Capacity Planning</p>
+                  <p className="text-xs text-yellow-600 mt-1">Consider adding bins in high-usage areas</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Host AI Notifications */}
+      <AINotifications />
 
       {/* Bin Management */}
       <div className="grid lg:grid-cols-2 gap-6">

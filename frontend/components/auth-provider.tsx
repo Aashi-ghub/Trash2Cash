@@ -3,6 +3,7 @@
 import type React from "react"
 import { createContext, useContext, useEffect, useState } from "react"
 import { apiClient, User as ApiUser } from "@/lib/api"
+import { tokenUtils, StoredUser } from "@/lib/auth-utils"
 
 interface User {
   id: string
@@ -28,37 +29,62 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const refreshUser = async () => {
     try {
-      // For now, we'll use a demo user since the backend doesn't have authentication yet
-      // In a real implementation, this would fetch the current user from the backend
-      const demoUser: User = {
-        id: "1",
-        email: "demo@trash2cash.com",
-        name: "Demo User",
-        role: "user",
-        points: 150,
+      const token = tokenUtils.getToken()
+      if (!token) {
+        // No token, user is not logged in
+        setUser(null)
+        return
       }
-      setUser(demoUser)
-      localStorage.setItem("trash2cash_user", JSON.stringify(demoUser))
+
+      // Get user info from backend
+      const response = await apiClient.getCurrentUser()
+      if (response.status === 'success' && response.data) {
+        const apiUser = response.data
+        const user: User = {
+          id: apiUser.user_id, // Use user_id from database
+          email: apiUser.email,
+          name: apiUser.display_name || apiUser.username || apiUser.email.split('@')[0],
+          role: apiUser.role === 'admin' ? 'admin' : apiUser.role === 'host' ? 'host' : 'user',
+          points: 150, // Default points for now
+        }
+        setUser(user)
+        tokenUtils.setUser(user)
+      } else {
+        // Invalid token, clear auth
+        tokenUtils.clearAuth()
+        setUser(null)
+      }
     } catch (error) {
       console.error("Failed to refresh user:", error)
+      // Clear invalid auth
+      tokenUtils.clearAuth()
+      setUser(null)
     }
   }
 
   useEffect(() => {
     const initializeAuth = async () => {
       try {
-        // Check for existing user session
-        const savedUser = localStorage.getItem("trash2cash_user")
-        if (savedUser) {
-          setUser(JSON.parse(savedUser))
-        } else {
-          // Initialize with demo user
+        // Check for existing token first
+        const token = tokenUtils.getToken()
+        const savedUser = tokenUtils.getUser()
+        
+        if (token && savedUser) {
+          // We have both token and user, try to refresh
+          setUser(savedUser)
           await refreshUser()
+        } else if (token) {
+          // Only token, try to get user from backend
+          await refreshUser()
+        } else {
+          // No saved data, user is not logged in
+          setUser(null)
         }
       } catch (error) {
         console.error("Auth initialization failed:", error)
-        // Fallback to demo user
-        await refreshUser()
+        // Clear invalid auth
+        tokenUtils.clearAuth()
+        setUser(null)
       } finally {
         setIsLoading(false)
       }
@@ -69,18 +95,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (email: string, password: string) => {
     try {
-      // For now, we'll simulate a login with demo data
-      // In a real implementation, this would call the backend auth endpoint
-      const demoUser: User = {
-        id: "1",
-        email,
-        name: email.split('@')[0], // Use email prefix as name
-        role: "user",
-        points: 150,
-      }
+      console.log('🔐 Attempting login with:', email);
       
-      localStorage.setItem("trash2cash_user", JSON.stringify(demoUser))
-      setUser(demoUser)
+      const response = await apiClient.login({ email, password })
+      console.log('📡 Login response:', response);
+      
+      if (response.status === 'success' && response.data?.token) {
+        // Store the JWT token
+        tokenUtils.setToken(response.data.token)
+        console.log('🔑 Token stored');
+        
+        // Get user info
+        const userResponse = await apiClient.getCurrentUser()
+        console.log('👤 User response:', userResponse);
+        
+        if (userResponse.status === 'success' && userResponse.data) {
+          const apiUser = userResponse.data
+          const user: User = {
+            id: apiUser.user_id, // Use user_id from database
+            email: apiUser.email,
+            name: apiUser.display_name || apiUser.username || apiUser.email.split('@')[0],
+            role: apiUser.role === 'admin' ? 'admin' : apiUser.role === 'host' ? 'host' : 'user',
+            points: 150, // Default points for now
+          }
+          console.log('✅ Setting user data:', user);
+          setUser(user)
+          tokenUtils.setUser(user)
+        } else {
+          throw new Error('Failed to get user profile')
+        }
+      } else {
+        throw new Error(response.message || 'Login failed')
+      }
     } catch (error) {
       console.error("Login failed:", error)
       throw error
@@ -88,7 +134,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const logout = () => {
-    localStorage.removeItem("trash2cash_user")
+    tokenUtils.clearAuth()
     setUser(null)
   }
 

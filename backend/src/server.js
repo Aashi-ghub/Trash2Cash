@@ -67,6 +67,7 @@ app.use('/api/admin', require('./routes/admin'));
 app.use('/api/device-keys', require('./routes/deviceKeys'));
 app.use('/api/analytics', require('./routes/analytics'));
 app.use('/api/ai-analytics', require('./routes/ai-analytics'));
+app.use('/api/ai-notifications', require('./routes/ai-notifications'));
 
 // 404 handler
 app.use('*', (req, res) => {

@@ -10,7 +10,7 @@ function getToken(req) {
   return null;
 }
 
-module.exports = async function auth(req, res, next) {
+const authenticateToken = async function auth(req, res, next) {
   try {
     const token = getToken(req);
     if (!token) return res.status(401).json({ status: 'error', message: 'Missing Bearer token' });
@@ -31,4 +31,6 @@ module.exports = async function auth(req, res, next) {
     return res.status(500).json({ status: 'error', message: 'Internal server error' });
   }
 }
+
+module.exports = authenticateToken;
 

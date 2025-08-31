@@ -183,6 +183,10 @@ class ApiClient {
     });
   }
 
+  async getCurrentUser(): Promise<ApiResponse<User>> {
+    return this.request('/api/users/me');
+  }
+
   // Users API
   async getUsers(): Promise<ApiResponse<User[]>> {
     return this.request('/api/users');

@@ -4,6 +4,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const logger = require('../config/logger');
 const dbConfig = require('../config/database');
+const authenticateToken = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -197,6 +198,49 @@ router.get('/', async (req, res) => {
     res.status(500).json({
       status: 'error',
       message: 'Internal server error'
+    });
+  }
+});
+
+// @route   GET /api/users/me
+// @desc    Get current user profile
+// @access  Private
+router.get('/me', authenticateToken, async (req, res) => {
+  try {
+    const userId = req.auth.userId;
+    const supabase = dbConfig.getAdminClient();
+    
+    const { data: user, error } = await supabase
+      .from('users')
+      .select('user_id, username, email, role, display_name, contact_phone, contact_address, created_at, updated_at')
+      .eq('user_id', userId)
+      .single();
+      
+    if (error) {
+      logger.error('Error fetching user profile:', error);
+      return res.status(500).json({
+        status: 'error',
+        message: 'Failed to fetch user profile'
+      });
+    }
+    
+    if (!user) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'User not found'
+      });
+    }
+
+    res.json({
+      status: 'success',
+      data: user
+    });
+
+  } catch (err) {
+    logger.error('Error in /me:', err);
+    res.status(500).json({
+      status: 'error',
+      message: 'Server error'
     });
   }
 });
@@ -454,5 +498,7 @@ router.delete('/:userId', async (req, res) => {
     });
   }
 });
+
+
 
 module.exports = router; 

@@ -30,66 +30,58 @@ class OllamaAiService {
   }
 
   async analyzeEvents(events) {
+    if (!this.serviceStatus.ollama) {
+      throw new Error('Ollama service not available. Please start Ollama with: ollama run llama3');
+    }
+
     try {
-      // Use Ollama for event analysis
-      if (this.serviceStatus.ollama) {
-        console.log('🦙 Using Ollama for event analysis...');
-        return await ollamaService.analyzeEvents(events);
-      }
-      
-      // If Ollama is not available, use mock fallback
-      console.log('⚠️  Ollama not available, using mock analysis...');
-      return await this.mockAnalysis(events);
-      
+      console.log('🦙 Using Ollama for event analysis...');
+      return await ollamaService.analyzeEvents(events);
     } catch (error) {
-      console.error('Ollama service failed:', error.message);
-      console.log('⚠️  Using mock analysis as fallback...');
-      return await this.mockAnalysis(events);
+      console.error('❌ Ollama event analysis failed:', error.message);
+      throw new Error(`AI analysis failed: ${error.message}`);
     }
   }
 
   async analyzeSingleEvent(event) {
+    if (!this.serviceStatus.ollama) {
+      throw new Error('Ollama service not available. Please start Ollama with: ollama run llama3');
+    }
+
     try {
-      if (this.serviceStatus.ollama) {
-        console.log('🦙 Using Ollama for single event analysis...');
-        return await ollamaService.analyzeSingleEvent(event);
-      }
-      
-      return await this.mockSingleEventAnalysis(event);
-      
+      console.log('🦙 Using Ollama for single event analysis...');
+      return await ollamaService.analyzeSingleEvent(event);
     } catch (error) {
-      console.error('Ollama service failed:', error.message);
-      return await this.mockSingleEventAnalysis(event);
+      console.error('❌ Ollama single event analysis failed:', error.message);
+      throw new Error(`AI analysis failed: ${error.message}`);
     }
   }
 
   async getPredictiveAnalytics(binId, historicalData) {
+    if (!this.serviceStatus.ollama) {
+      throw new Error('Ollama service not available. Please start Ollama with: ollama run llama3');
+    }
+
     try {
-      if (this.serviceStatus.ollama) {
-        console.log('🦙 Using Ollama for predictive analytics...');
-        return await ollamaService.getPredictiveAnalytics(binId, historicalData);
-      }
-      
-      return await this.mockPredictiveAnalytics(binId, historicalData);
-      
+      console.log('🦙 Using Ollama for predictive analytics...');
+      return await ollamaService.getPredictiveAnalytics(binId, historicalData);
     } catch (error) {
-      console.error('Ollama service failed:', error.message);
-      return await this.mockPredictiveAnalytics(binId, historicalData);
+      console.error('❌ Ollama predictive analytics failed:', error.message);
+      throw new Error(`AI prediction failed: ${error.message}`);
     }
   }
 
   async chat(message, context = '') {
+    if (!this.serviceStatus.ollama) {
+      throw new Error('Ollama service not available. Please start Ollama with: ollama run llama3');
+    }
+
     try {
-      if (this.serviceStatus.ollama) {
-        console.log('🦙 Using Ollama for chat...');
-        return await ollamaService.chat(message, context);
-      }
-      
-      return await this.mockChat(message, context);
-      
+      console.log('🦙 Using Ollama for chat...');
+      return await ollamaService.chat(message, context);
     } catch (error) {
-      console.error('Chat service failed:', error.message);
-      return await this.mockChat(message, context);
+      console.error('❌ Ollama chat failed:', error.message);
+      throw new Error(`AI chat failed: ${error.message}`);
     }
   }
 
@@ -100,66 +92,6 @@ class OllamaAiService {
       preferred: 'ollama',
       timestamp: new Date().toISOString()
     };
-  }
-
-  // Mock fallback methods
-  async mockAnalysis(events) {
-    console.log('🎭 Using mock AI analysis...');
-    return {
-      insights: [
-        {
-          type: 'capacity_optimization',
-          description: 'Mock analysis: Consider optimizing bin placement based on usage patterns',
-          severity: 'medium',
-          recommendation: 'Review bin distribution and collection schedules'
-        }
-      ],
-      summary: 'Mock AI analysis completed for event batch',
-      trends: {
-        fill_level_trend: 'stable',
-        weight_trend: 'stable',
-        usage_frequency: 'medium'
-      }
-    };
-  }
-
-  async mockSingleEventAnalysis(event) {
-    return {
-      anomaly_score: 0.3,
-      is_anomaly: false,
-      anomaly_type: 'none',
-      description: 'Mock analysis: Event appears normal',
-      recommendation: 'Continue monitoring'
-    };
-  }
-
-  async mockPredictiveAnalytics(binId, historicalData) {
-    return {
-      capacity_forecast: {
-        next_24h: "70%",
-        next_week: "80%",
-        next_month: "85%"
-      },
-      collection_optimization: {
-        optimal_frequency: "daily",
-        next_collection: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-        efficiency_score: 0.75
-      },
-      usage_patterns: {
-        peak_hours: ["8:00", "18:00"],
-        peak_days: ["Monday", "Wednesday", "Friday"],
-        seasonal_trends: "Mock prediction based on historical patterns"
-      },
-      revenue_forecast: {
-        daily_average: "$120",
-        weekly_projection: "$840",
-        monthly_projection: "$3600"
-      }
-    };
-  }
-
-  async mockChat(message, context = '') {
-    return `Mock AI Response: I understand you're asking about "${message}". This is a fallback response when Ollama is unavailable. Please check your Ollama configuration.`;
   }
 }
 
