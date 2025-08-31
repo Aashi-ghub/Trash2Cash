@@ -13,11 +13,13 @@
     "start": "cd backend && npm start",
     "setup": "npm run setup:backend && npm run setup:frontend",
     "setup:backend": "cd backend && npm install",
-    "setup:frontend": "cd frontend && npm install",
+    "setup:frontend": "cd frontend && npm install --legacy-peer-deps",
     "seed": "cd backend && npm run seed:mock",
     "test": "npm run test:backend && npm run test:frontend",
     "test:backend": "cd backend && npm test",
-    "test:frontend": "cd frontend && npm run lint"
+    "test:frontend": "cd frontend && npm run lint",
+    "deploy:frontend": "cd frontend && npm run build",
+    "deploy:backend": "cd backend && npm start"
   },
   "keywords": [
     "recycling",
